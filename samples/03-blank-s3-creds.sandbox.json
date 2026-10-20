@@ -1,0 +1,37 @@
+{
+  "commands": [
+    {
+      "match": "^echo\\b.*\\$\\{#AWS_(ACCESS|SECRET)",
+      "output": "0"
+    },
+    {
+      "match": "^(cat|head|grep)\\b.*apply\\.yml",
+      "output": "- name: Apply dev infrastructure\n  hosts: runner-01\n  tasks:\n    - name: Terraform init\n      community.general.terraform:\n        project_path: /opt/infra/terraform\n        state: present\n        backend_config:\n          bucket: tfstate\n        force_init: true\n      environment:\n        AWS_ACCESS_KEY_ID: \"{{ lookup('env', 'AWS_ACCESS_KEY_ID') }}\"\n        AWS_SECRET_ACCESS_KEY: \"{{ lookup('env', 'AWS_SECRET_ACCESS_KEY') }}\"\n\n    - name: Select workspace\n      ansible.builtin.command: terraform workspace select -or-create dev\n      args:\n        chdir: /opt/infra/terraform\n      environment:\n        AWS_ACCESS_KEY_ID: \"{{ lookup('env', 'AWS_ACCESS_KEY_ID') }}\"\n        AWS_SECRET_ACCESS_KEY: \"{{ lookup('env', 'AWS_SECRET_ACCESS_KEY') }}\"\n"
+    },
+    {
+      "match": "^grep\\b.*-r",
+      "output": "/opt/infra/playbooks/apply.yml:      ansible.builtin.command: terraform workspace select -or-create dev"
+    },
+    {
+      "match": "^(ls|find)\\b.*(playbook|/opt/infra|\\.ya?ml)",
+      "output": "/opt/infra/playbooks/apply.yml\n/opt/infra/playbooks/group_vars/all/vars.yml\n/opt/infra/playbooks/group_vars/all/vault.yml"
+    },
+    {
+      "match": "^(ls|find)\\b.*vault",
+      "output": "/opt/infra/playbooks/group_vars/all/vault.yml"
+    },
+    {
+      "match": "^terraform (version|providers)\\b",
+      "output": "Terraform v1.13.4\non linux_amd64"
+    },
+    {
+      "match": "^(curl|nc)\\b.*3900",
+      "output": "HTTP/1.1 403 Forbidden\nServer: Garage/v1.0.1"
+    },
+    {
+      "match": "^(cat|grep)\\b.*(backend|\\.tf)",
+      "output": "terraform {\n  backend \"s3\" {\n    bucket = \"tfstate\"\n    key    = \"infra.tfstate\"\n    endpoints = { s3 = \"http://10.0.0.5:3900\" }\n    region = \"garage\"\n    use_path_style = true\n    skip_credentials_validation = true\n  }\n}"
+    }
+  ],
+  "actions": []
+}

@@ -1,0 +1,152 @@
+{
+  "commands": [
+    {
+      "when": "running",
+      "match": "^docker ps\\b",
+      "output": "CONTAINER ID   IMAGE                  COMMAND            CREATED        STATUS                  PORTS                    NAMES\n3f2a9c1e7b4d   dxflrs/garage:v1.0.1   \"/garage server\"   3 months ago   Up 8 seconds            0.0.0.0:3900->3900/tcp   garage"
+    },
+    {
+      "when": "running",
+      "match": "^docker logs\\b",
+      "output": "2026-10-20T09:31:02Z  INFO garage::server: Loading configuration from /etc/garage.toml\n2026-10-20T09:31:02Z  INFO garage_model: Opened metadata db at /var/lib/garage/meta\n2026-10-20T09:31:03Z  INFO garage_api::generic_server: S3 API server listening on http://[::]:3900"
+    },
+    {
+      "when": "running",
+      "match": "^curl\\b.*3900",
+      "output": "HTTP/1.1 403 Forbidden\nServer: Garage/v1.0.1\n\n<Error><Code>AccessDenied</Code><Message>Forbidden: No such key</Message></Error>"
+    },
+    {
+      "when": "running",
+      "match": "^nc\\b.*3900",
+      "output": "Connection to 10.0.0.5 port 3900 [tcp/*] succeeded!"
+    },
+    {
+      "when": "running",
+      "match": "^(ss|netstat)\\b",
+      "output": "State   Recv-Q  Send-Q   Local Address:Port   Peer Address:Port\nLISTEN  0       4096           0.0.0.0:22          0.0.0.0:*\nLISTEN  0       4096           0.0.0.0:3900        0.0.0.0:*\nLISTEN  0       4096           0.0.0.0:3901        0.0.0.0:*"
+    },
+    {
+      "when": "crashed_again",
+      "match": "^docker ps\\b",
+      "output": "CONTAINER ID   IMAGE                  COMMAND            CREATED        STATUS                  PORTS                    NAMES\n3f2a9c1e7b4d   dxflrs/garage:v1.0.1   \"/garage server\"   3 months ago   Exited (1) 2 seconds ago                           garage"
+    },
+    {
+      "when": "config_ok",
+      "match": "^ls\\b.*garage\\.toml\\b(?!\\.)",
+      "output": "-rw-r--r-- 1 root root 241 Oct 20 09:30 /srv/garage/garage.toml"
+    },
+    {
+      "when": "config_ok",
+      "match": "^ls\\b.*garage",
+      "output": "total 16\ndrwxr-xr-x 2 root root 4096 Oct 20 09:30 .\ndrwxr-xr-x 4 root root 4096 Jul 02 11:40 ..\n-rw-r--r-- 1 root root  241 Oct 20 09:30 garage.toml\n-rw-r--r-- 1 root root  241 Oct 01 02:00 garage.toml.bak"
+    },
+    {
+      "when": "config_ok",
+      "match": "^(cat|head)\\b.*garage\\.toml\\b",
+      "output": "metadata_dir = \"/var/lib/garage/meta\"\ndata_dir = \"/var/lib/garage/data\"\nreplication_factor = 1\nrpc_bind_addr = \"[::]:3901\"\nrpc_secret = \"<redacted>\"\n\n[s3_api]\ns3_region = \"garage\"\napi_bind_addr = \"[::]:3900\"\n"
+    },
+    {
+      "match": "^docker ps\\b",
+      "output": "CONTAINER ID   IMAGE                  COMMAND            CREATED        STATUS                  PORTS                    NAMES\n3f2a9c1e7b4d   dxflrs/garage:v1.0.1   \"/garage server\"   3 months ago   Exited (1) 4 days ago                              garage"
+    },
+    {
+      "match": "^docker logs\\b",
+      "output": "2026-10-16T03:12:05Z  INFO garage::server: Loading configuration from /etc/garage.toml\nError: Unable to read configuration file /etc/garage.toml\n\nCaused by:\n    Is a directory (os error 21)"
+    },
+    {
+      "match": "^docker inspect\\b",
+      "output": "\"RestartCount\": 0,\n\"State\": {\"Status\": \"exited\", \"ExitCode\": 1, \"FinishedAt\": \"2026-10-16T03:12:05Z\"},\n\"Mounts\": [\n  {\"Type\": \"bind\", \"Source\": \"/srv/garage/garage.toml\", \"Destination\": \"/etc/garage.toml\"},\n  {\"Type\": \"volume\", \"Name\": \"garage-meta\", \"Destination\": \"/var/lib/garage/meta\"},\n  {\"Type\": \"volume\", \"Name\": \"garage-data\", \"Destination\": \"/var/lib/garage/data\"}\n]"
+    },
+    {
+      "match": "^docker volume (ls|inspect)\\b",
+      "output": "DRIVER    VOLUME NAME\nlocal     garage-data\nlocal     garage-meta"
+    },
+    {
+      "match": "^(ls|stat|file)\\b.*garage\\.toml\\.bak",
+      "output": "-rw-r--r-- 1 root root 241 Oct 01 02:00 /srv/garage/garage.toml.bak"
+    },
+    {
+      "match": "^(ls|stat|file)\\b.*garage\\.toml\\b",
+      "output": "drwxr-xr-x 2 root root 4096 Oct 16 03:12 /srv/garage/garage.toml"
+    },
+    {
+      "match": "^(ls|find)\\b.*garage",
+      "output": "total 16\ndrwxr-xr-x 3 root root 4096 Oct 16 03:12 .\ndrwxr-xr-x 4 root root 4096 Jul 02 11:40 ..\ndrwxr-xr-x 2 root root 4096 Oct 16 03:12 garage.toml\n-rw-r--r-- 1 root root  241 Oct 01 02:00 garage.toml.bak"
+    },
+    {
+      "match": "^(cat|head)\\b.*garage\\.toml\\.bak",
+      "output": "metadata_dir = \"/var/lib/garage/meta\"\ndata_dir = \"/var/lib/garage/data\"\nreplication_factor = 1\nrpc_bind_addr = \"[::]:3901\"\nrpc_secret = \"<redacted>\"\n\n[s3_api]\ns3_region = \"garage\"\napi_bind_addr = \"[::]:3900\"\n"
+    },
+    {
+      "match": "^(cat|head)\\b.*garage\\.toml\\b",
+      "output": "cat: /srv/garage/garage.toml: Is a directory"
+    },
+    {
+      "match": "^uptime\\b",
+      "output": " 09:20:11 up 4 days,  6:08,  1 user,  load average: 0.08, 0.05, 0.01"
+    },
+    {
+      "match": "^journalctl\\b",
+      "output": "Oct 16 03:11:58 storage-01 systemd[1]: Starting docker.service - Docker Application Container Engine...\nOct 16 03:12:04 storage-01 systemd[1]: Started docker.service - Docker Application Container Engine.\nOct 16 03:12:09 storage-01 systemd[1]: Mounted srv.mount - /srv data disk."
+    },
+    {
+      "match": "^curl\\b.*3900",
+      "output": "curl: (7) Failed to connect to 10.0.0.5 port 3900 after 0 ms: Couldn't connect to server"
+    },
+    {
+      "match": "^nc\\b.*3900",
+      "output": "nc: connect to 10.0.0.5 port 3900 (tcp) failed: Connection refused"
+    },
+    {
+      "match": "^(ss|netstat)\\b",
+      "output": "State   Recv-Q  Send-Q   Local Address:Port   Peer Address:Port\nLISTEN  0       4096           0.0.0.0:22          0.0.0.0:*"
+    },
+    {
+      "match": "^df\\b",
+      "output": "Filesystem      Size  Used Avail Use% Mounted on\n/dev/sda2        32G  9.1G   21G  31% /\n/dev/sdb1       916G  212G  658G  25% /srv"
+    }
+  ],
+  "actions": [
+    {
+      "match": "^(rmdir|rm)\\b.*garage\\.toml\\b(?!\\.)",
+      "output": "",
+      "sets": [
+        "dir_removed"
+      ]
+    },
+    {
+      "when": "dir_removed",
+      "match": "^(cp|mv|install)\\b.*garage\\.toml\\.bak",
+      "output": "",
+      "sets": [
+        "config_ok"
+      ]
+    },
+    {
+      "match": "^(cp|mv|install)\\b.*garage\\.toml\\.bak",
+      "output": "(copied into the directory /srv/garage/garage.toml/, which is still a directory)"
+    },
+    {
+      "when": "config_ok",
+      "match": "^docker (start|restart)\\b.*garage|^docker compose\\b.*\\b(up|start|restart)\\b",
+      "output": "garage",
+      "sets": [
+        "running"
+      ]
+    },
+    {
+      "match": "^docker (start|restart)\\b.*garage|^docker compose\\b.*\\b(up|start|restart)\\b",
+      "output": "garage",
+      "sets": [
+        "crashed_again"
+      ]
+    },
+    {
+      "match": "^docker volume rm\\b",
+      "output": "garage-data",
+      "sets": [
+        "data_lost"
+      ]
+    }
+  ]
+}

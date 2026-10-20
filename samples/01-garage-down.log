@@ -1,0 +1,17 @@
+PLAY [Apply dev infrastructure] ************************************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [runner-01]
+
+TASK [Terraform init] **********************************************************
+ok: [runner-01]
+
+TASK [Select workspace] ********************************************************
+fatal: [runner-01]: FAILED! => {"changed": false, "cmd": "terraform workspace select -or-create dev", "rc": 1, "stderr": "\nError: Failed to get existing workspaces: RequestError: send request failed\ncaused by: Get \"http://10.0.0.5:3900/tfstate?list-type=2&prefix=env%3A%2F\": dial tcp 10.0.0.5:3900: connect: connection refused\n", "stdout": ""}
+
+PLAY RECAP *********************************************************************
+runner-01                  : ok=2    changed=0    unreachable=0    failed=1    skipped=0    rescued=0    ignored=0
+
+# operator notes: the S3 state backend runs as the `garage` container on storage-01 (10.0.0.5),
+# with its config bind-mounted from /srv/garage/garage.toml.
+# Last successful terraform run was 4 days ago.

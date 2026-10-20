@@ -1,0 +1,23 @@
+# Secrets - never commit
+.env
+.env.*
+!.env.example
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+
+# OS / editors
+.DS_Store
+.idea/
+.vscode/
+
+# Parked work, kept local
+backlog/
+
+# Local AI-assistant notes and agents, kept out of the public repo
+CLAUDE.md
+.claude/

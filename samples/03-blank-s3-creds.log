@@ -1,0 +1,8 @@
+TASK [Terraform init] **********************************************************
+ok: [runner-01]
+
+TASK [Select workspace] ********************************************************
+fatal: [runner-01]: FAILED! => {"changed": false, "cmd": "terraform workspace select -or-create dev", "rc": 1, "stderr": "\nError: Failed to get existing workspaces: Unable to list objects in S3 bucket \"tfstate\" with prefix \"env:/\": operation error S3: ListObjectsV2, https response error StatusCode: 403, RequestID: , HostID: , api error InvalidAccessKeyId: The AWS Access Key Id you provided does not exist in our records.\n", "stdout": ""}
+
+# operator notes: the playbook reads AWS_ACCESS_KEY_ID from the environment.
+# `echo "[$AWS_ACCESS_KEY_ID]"` in the shell that ran the playbook prints: []

@@ -1,0 +1,10 @@
+2026-10-18T09:14:02Z Set up job
+2026-10-18T09:14:03Z Run actions/checkout@v4
+2026-10-18T09:14:03Z Syncing repository: ops/infra
+2026-10-18T09:14:04Z /usr/bin/git -c protocol.version=2 fetch --no-tags --prune --depth=1 origin +refs/heads/main:refs/remotes/origin/main
+2026-10-18T09:14:09Z fatal: unable to access 'http://gitea:3000/ops/infra.git/': Could not resolve host: gitea
+2026-10-18T09:14:09Z The process '/usr/bin/git' failed with exit code 128
+2026-10-18T09:14:09Z Waiting 13 seconds before trying again
+2026-10-18T09:14:27Z fatal: unable to access 'http://gitea:3000/ops/infra.git/': Could not resolve host: gitea
+2026-10-18T09:14:27Z Error: The process '/usr/bin/git' failed with exit code 128
+2026-10-18T09:14:28Z Cleaning up orphan processes

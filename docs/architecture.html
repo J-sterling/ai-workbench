@@ -1,0 +1,234 @@
+<title>AI Workbench Architecture</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@600&display=swap">
+<style>
+/* Layout: one wide schematic in a scroll container, then a short request-flow list and status key. */
+:root {
+  --bg: #f3f5f4; --panel: #ffffff; --ink: #18232b; --muted: #5b6a72; --line: #a9b6bb;
+  --built: #0f7a6c; --built-tint: #e2f2ef;
+  --planned: #b26a00; --planned-tint: #fbf0dd;
+  --later: #6d6680; --later-tint: #efedf3;
+  --display: "IBM Plex Sans Condensed", "Arial Narrow", sans-serif;
+  --body: "IBM Plex Sans", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #11181d; --panel: #18222a; --ink: #e3eaed; --muted: #94a5ad; --line: #4a5a62;
+  --built: #4cc3b1; --built-tint: #15302c; --planned: #f0a73c; --planned-tint: #33270f;
+  --later: #a9a1c0; --later-tint: #25222f; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #11181d; --panel: #18222a; --ink: #e3eaed; --muted: #94a5ad; --line: #4a5a62;
+  --built: #4cc3b1; --built-tint: #15302c; --planned: #f0a73c; --planned-tint: #33270f;
+  --later: #a9a1c0; --later-tint: #25222f; color-scheme: dark }
+
+body { background: var(--bg); color: var(--ink); font: 15px/1.55 var(--body); padding-inline: 16px; }
+main { max-width: 1160px; margin: 0 auto; padding-block: 32px 48px; display: grid; gap: 28px; }
+header { display: grid; gap: 6px; max-width: 70ch; }
+h1 { font: 600 2rem/1.15 var(--display); margin: 0; text-wrap: balance; letter-spacing: .01em; }
+h2 { font: 600 1.15rem/1.3 var(--display); margin: 0 0 10px; letter-spacing: .02em; }
+.lede { color: var(--muted); margin: 0; }
+.legend { display: flex; flex-wrap: wrap; gap: 8px 18px; font: 500 12px var(--mono); color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 8px; }
+.sw { width: 28px; height: 12px; border: 2px solid; border-radius: 2px; }
+.sw.built { border-color: var(--built); background: var(--built-tint); }
+.sw.planned { border-color: var(--planned); border-style: dashed; background: var(--planned-tint); }
+.sw.later { border-color: var(--later); border-style: dotted; background: var(--later-tint); }
+
+.diagram { overflow-x: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 12px; }
+.diagram svg { display: block; min-width: 980px; width: 100%; height: auto; }
+
+svg text { font-family: var(--body); fill: var(--ink); }
+svg .t { font-size: 14px; font-weight: 600; }
+svg .s { font-size: 12px; fill: var(--muted); }
+svg .m { font-family: var(--mono); font-size: 11.5px; fill: var(--muted); }
+svg .zone { font-family: var(--display); font-size: 13px; font-weight: 600; letter-spacing: .08em; fill: var(--muted); }
+svg .n { font-family: var(--mono); font-size: 12px; font-weight: 500; }
+svg .frame { fill: none; stroke: var(--line); stroke-width: 1.2; }
+svg .built { fill: var(--built-tint); stroke: var(--built); stroke-width: 1.6; }
+svg .planned { fill: var(--planned-tint); stroke: var(--planned); stroke-width: 1.6; stroke-dasharray: 6 4; }
+svg .later { fill: var(--later-tint); stroke: var(--later); stroke-width: 1.6; stroke-dasharray: 2 3; }
+svg .n.built-c { fill: var(--built); } svg .n.planned-c { fill: var(--planned); } svg .n.later-c { fill: var(--later); }
+svg .wire { fill: none; stroke: var(--ink); stroke-width: 1.4; opacity: .7; }
+svg .wire.p { stroke: var(--planned); stroke-dasharray: 6 4; opacity: 1; }
+svg .lbl { font-family: var(--mono); font-size: 11px; fill: var(--muted); }
+svg .head { fill: var(--ink); opacity: .7; }
+svg .head.p { fill: var(--planned); opacity: 1; }
+
+.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 28px; }
+.cols > section { min-width: 0; }
+ol, ul { margin: 0; padding-left: 1.3em; display: grid; gap: 6px; }
+li { max-width: 65ch; }
+code { font: 13px var(--mono); }
+.tag { font: 500 11px var(--mono); padding: 1px 6px; border-radius: 3px; margin-left: 4px; white-space: nowrap; }
+.tag.built { color: var(--built); background: var(--built-tint); }
+.tag.planned { color: var(--planned); background: var(--planned-tint); }
+.tag.later { color: var(--later); background: var(--later-tint); }
+footer { color: var(--muted); font-size: 13px; }
+</style>
+
+<main>
+  <header>
+    <h1>AI Workbench Architecture</h1>
+    <p class="lede">Log triage agent for the Nebius x NVIDIA Global AI Hackathon. A failed infrastructure log goes in; a diagnosis grounded in your own runbooks comes out, and any risky fix waits for a human.</p>
+  </header>
+
+  <div class="legend" aria-label="Legend">
+    <span><i class="sw built"></i>Built and tested (15 Oct)</span>
+    <span><i class="sw planned"></i>Planned for the submission</span>
+    <span><i class="sw later"></i>After 30 October</span>
+  </div>
+
+  <div class="diagram">
+    <svg viewBox="0 0 1120 760" role="img" aria-labelledby="dt">
+      <title id="dt">Architecture: log and runbook sources feed a FastAPI triage pipeline that calls Nebius Token Factory models and stores data in one Postgres with pgvector, BM25 and Apache AGE.</title>
+      <defs>
+        <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="head" d="M0,0 L10,5 L0,10 z"/></marker>
+        <marker id="ap" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="head p" d="M0,0 L10,5 L0,10 z"/></marker>
+      </defs>
+
+      <!-- zone labels -->
+      <text class="zone" x="20" y="28">SOURCES</text>
+      <text class="zone" x="300" y="28">TRIAGE APP · FASTAPI · YOUR MAC NOW, NEBIUS FOR THE DEMO</text>
+      <text class="zone" x="820" y="28">NEBIUS TOKEN FACTORY</text>
+      <text class="zone" x="300" y="582">POSTGRES 17 · ONE DATABASE</text>
+
+      <!-- sources -->
+      <rect class="built" x="20" y="90" width="220" height="64" rx="4"/>
+      <text class="t" x="34" y="116">Failed run log</text>
+      <text class="m" x="34" y="138">POST /triage · samples/*.log</text>
+
+      <rect class="planned" x="20" y="200" width="220" height="64" rx="4"/>
+      <text class="t" x="34" y="226">Data connectors</text>
+      <text class="m" x="34" y="248">NFS · SMB · S3 · Azure Blob</text>
+
+      <rect class="built" x="20" y="330" width="220" height="64" rx="4"/>
+      <text class="t" x="34" y="356">Runbooks</text>
+      <text class="m" x="34" y="378">runbooks/*.md · 15 files</text>
+
+      <path class="wire p" d="M130 264 V326" marker-end="url(#ap)"/>
+      <path class="wire" d="M130 394 V650 H296" marker-end="url(#a)"/>
+      <text class="lbl" x="140" y="520">ingest_runbooks.py</text>
+      <text class="lbl" x="140" y="536">embed, store, build graph</text>
+
+      <!-- app frame and pipeline -->
+      <rect class="frame" x="300" y="40" width="460" height="500" rx="6"/>
+
+      <rect class="built" x="320" y="90" width="420" height="64" rx="4"/>
+      <text class="n built-c" x="334" y="116">1</text>
+      <text class="t" x="354" y="116">Pull out the error lines</text>
+      <text class="s" x="354" y="138">fatal, stderr, refused, operator notes</text>
+
+      <rect class="built" x="320" y="176" width="420" height="64" rx="4"/>
+      <text class="n built-c" x="334" y="202">2</text>
+      <text class="t" x="354" y="202">Find matching runbooks</text>
+      <text class="s" x="354" y="224">vector search now · + BM25 merged by RRF (planned)</text>
+
+      <rect class="planned" x="320" y="262" width="420" height="64" rx="4"/>
+      <text class="n planned-c" x="334" y="288">3</text>
+      <text class="t" x="354" y="288">Follow the graph</text>
+      <text class="s" x="354" y="310">related runbooks and dependencies, 2 hops</text>
+
+      <rect class="built" x="320" y="348" width="420" height="64" rx="4"/>
+      <text class="n built-c" x="334" y="374">4</text>
+      <text class="t" x="354" y="374">Diagnose with Nemotron</text>
+      <text class="s" x="354" y="396">cause, fix commands, step that needs approval</text>
+
+      <rect class="planned" x="320" y="434" width="420" height="64" rx="4"/>
+      <text class="n planned-c" x="334" y="460">5</text>
+      <text class="t" x="354" y="460">Approval gate</text>
+      <text class="s" x="354" y="482">risky step waits for a human; logged as a run</text>
+
+      <path class="wire" d="M240 122 H316" marker-end="url(#a)"/>
+      <path class="wire" d="M530 154 V172" marker-end="url(#a)"/>
+      <path class="wire" d="M530 240 V258" marker-end="url(#a)"/>
+      <path class="wire" d="M530 326 V344" marker-end="url(#a)"/>
+      <path class="wire" d="M530 412 V430" marker-end="url(#a)"/>
+
+      <!-- token factory -->
+      <rect class="frame" x="820" y="40" width="280" height="260" rx="6"/>
+      <rect class="built" x="836" y="118" width="248" height="64" rx="4"/>
+      <text class="t" x="850" y="144">Qwen3-Embedding-8B</text>
+      <text class="m" x="850" y="166">1024-dim vectors</text>
+      <rect class="built" x="836" y="208" width="248" height="64" rx="4"/>
+      <text class="t" x="850" y="234">Nemotron 3 Super · Ultra</text>
+      <text class="m" x="850" y="256">~$0.0008 per triage (Super)</text>
+
+      <path class="wire" d="M740 208 H770 V150 H832" marker-end="url(#a)"/>
+      <path class="wire" d="M740 366 H790 V240 H832" marker-end="url(#a)"/>
+
+      <rect class="planned" x="820" y="340" width="280" height="64" rx="4"/>
+      <text class="t" x="834" y="366">Tavily web search</text>
+      <text class="m" x="834" y="388">only when no runbook matches</text>
+      <path class="wire p" d="M740 396 H805 V372 H816" marker-end="url(#ap)"/>
+
+      <!-- operator -->
+      <rect class="planned" x="820" y="434" width="280" height="64" rx="4"/>
+      <text class="t" x="834" y="460">You (operator)</text>
+      <text class="m" x="834" y="482">approve or reject, e.g. docker restart</text>
+      <path class="wire p" d="M744 466 H816" marker-start="url(#ap)" marker-end="url(#ap)"/>
+
+      <!-- postgres -->
+      <rect class="frame" x="300" y="590" width="800" height="150" rx="6"/>
+      <rect class="built" x="316" y="610" width="176" height="114" rx="4"/>
+      <text class="t" x="330" y="636">pgvector</text>
+      <text class="m" x="330" y="658">chunks.embedding</text>
+      <text class="m" x="330" y="676">HNSW, cosine</text>
+      <text class="s" x="330" y="706">schema written, not run</text>
+
+      <rect class="planned" x="504" y="610" width="176" height="114" rx="4"/>
+      <text class="t" x="518" y="636">BM25 index</text>
+      <text class="m" x="518" y="658">pg_textsearch</text>
+      <text class="m" x="518" y="676">exact error tokens</text>
+      <text class="s" x="518" y="706">PostgreSQL licence</text>
+
+      <rect class="planned" x="692" y="610" width="176" height="114" rx="4"/>
+      <text class="t" x="706" y="636">Graph "kb"</text>
+      <text class="m" x="706" y="658">Apache AGE · Cypher</text>
+      <text class="m" x="706" y="676">runbook → component</text>
+      <text class="s" x="706" y="706">Apache 2.0</text>
+
+      <rect class="built" x="880" y="610" width="204" height="114" rx="4"/>
+      <text class="t" x="894" y="636">runs</text>
+      <text class="m" x="894" y="658">status, tool calls, tokens</text>
+      <rect class="later" x="890" y="672" width="184" height="40" rx="3"/>
+      <text class="m" x="900" y="690">KEDA scales workers on</text>
+      <text class="m" x="900" y="704">count(status='pending')</text>
+
+      <path class="wire" d="M420 540 V606" marker-end="url(#a)"/>
+      <path class="wire p" d="M592 540 V606" marker-end="url(#ap)"/>
+      <path class="wire p" d="M740 540 V606" marker-end="url(#ap)"/>
+      <path class="wire p" d="M960 498 V606" marker-end="url(#ap)"/>
+      <text class="lbl" x="428" y="566">search</text>
+      <text class="lbl" x="600" y="566">BM25</text>
+      <text class="lbl" x="748" y="566">graph</text>
+      <text class="lbl" x="968" y="556">record decision</text>
+    </svg>
+  </div>
+
+  <div class="cols">
+    <section>
+      <h2>One triage, step by step</h2>
+      <ol>
+        <li>A failed Ansible or Terraform log arrives at <code>POST /triage</code>.</li>
+        <li>The app keeps only the error-bearing lines and embeds them with Qwen3-Embedding on Token Factory.</li>
+        <li>Postgres returns the closest runbooks. Vector search finds the right one for all 14 test logs; BM25 is added to widen close calls on exact error strings.</li>
+        <li>The graph adds related runbooks, such as "check the S3 backend" when credentials look wrong.</li>
+        <li>Nemotron Super writes the cause, the fix and the risky step. With no runbook match, it can search the web through Tavily.</li>
+        <li>The risky step waits for your approval, and the run is recorded.</li>
+      </ol>
+    </section>
+    <section>
+      <h2>Status on 15 October</h2>
+      <ul>
+        <li>Token Factory calls, retrieval eval (14/14) and triage <span class="tag built">built</span></li>
+        <li>Postgres schema and ingest code, not yet run: Docker isn't installed <span class="tag built">written</span></li>
+        <li>BM25 hybrid search and the AGE graph <span class="tag planned">planned</span></li>
+        <li>Approval button, run logging, Tavily fallback, data connectors <span class="tag planned">planned</span></li>
+        <li>Hosted demo on Nebius Serverless with Nebius Object Storage <span class="tag planned">planned</span></li>
+        <li>KEDA autoscaling on Kubernetes <span class="tag later">after 30 Oct</span></li>
+      </ul>
+    </section>
+  </div>
+
+  <footer>Every model call goes through Nebius Token Factory. Postgres only stores data, so it can run on your Mac now and on Nebius for the judges' demo.</footer>
+</main>

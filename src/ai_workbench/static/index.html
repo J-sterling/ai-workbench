@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Workbench</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@600&display=swap">
+<style>
+/* Layout: input column left, run column right (stacks on phones). Same tokens as docs/architecture.html. */
+:root {
+  --bg: #f3f5f4; --panel: #ffffff; --ink: #18232b; --muted: #5b6a72; --line: #a9b6bb; --line-soft: #d8e0e2;
+  --ok: #0f7a6c; --ok-tint: #e2f2ef; --gate: #b26a00; --gate-tint: #fbf0dd; --bad: #b3261e; --bad-tint: #fbe7e5;
+  --code: #eef2f1;
+  --display: "IBM Plex Sans Condensed", "Arial Narrow", sans-serif;
+  --body: "IBM Plex Sans", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) { :root {
+  --bg: #11181d; --panel: #18222a; --ink: #e3eaed; --muted: #94a5ad; --line: #4a5a62; --line-soft: #2a363d;
+  --ok: #4cc3b1; --ok-tint: #15302c; --gate: #f0a73c; --gate-tint: #33270f; --bad: #f2867d; --bad-tint: #3a1c1a;
+  --code: #111a20; color-scheme: dark } }
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.55 var(--body); }
+.wrap { max-width: 1240px; margin: 0 auto; padding: 0 16px 48px; }
+header { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 8px 24px; padding: 24px 0 14px; }
+h1 { font: 600 1.9rem/1.1 var(--display); margin: 0; letter-spacing: .01em; }
+.tagline { margin: 4px 0 0; color: var(--muted); max-width: 60ch; }
+.engine { font: 500 12px var(--mono); color: var(--muted); border: 1px solid var(--line-soft); border-radius: 4px; padding: 4px 8px; background: var(--panel); }
+.banner { display: flex; gap: 10px; align-items: center; background: var(--gate-tint); border: 1px solid var(--gate); border-radius: 6px; padding: 8px 12px; font-size: 13.5px; margin-bottom: 18px; }
+.banner b { color: var(--gate); font-weight: 600; }
+main { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 18px; align-items: start; }
+@media (max-width: 880px) { main { grid-template-columns: 1fr; } }
+.panel { background: var(--panel); border: 1px solid var(--line-soft); border-radius: 8px; padding: 16px; display: grid; gap: 14px; min-width: 0; }
+h2 { font: 600 1.05rem/1.3 var(--display); letter-spacing: .02em; margin: 0; }
+.label { font: 500 11.5px var(--mono); letter-spacing: .07em; text-transform: uppercase; color: var(--muted); }
+.samples { display: grid; gap: 8px; }
+.sample { display: grid; grid-template-columns: auto 1fr; gap: 2px 10px; align-items: start; padding: 10px 12px; border: 1px solid var(--line-soft); border-radius: 6px; cursor: pointer; }
+.sample:hover { border-color: var(--line); }
+.sample:has(input:checked) { border-color: var(--ok); background: var(--ok-tint); }
+.sample input { margin: 3px 0 0; grid-row: span 2; accent-color: var(--ok); }
+.sample .name { font: 500 12px var(--mono); color: var(--muted); }
+textarea { width: 100%; min-height: 190px; resize: vertical; font: 12.5px/1.45 var(--mono); color: var(--ink); background: var(--code); border: 1px solid var(--line-soft); border-radius: 6px; padding: 10px; }
+.row { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; }
+.toggle { display: inline-flex; gap: 8px; align-items: center; font-size: 14px; cursor: pointer; }
+.toggle input { accent-color: var(--ok); width: 16px; height: 16px; }
+select { font: 13px var(--body); padding: 5px 8px; border-radius: 5px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); }
+.hint { font-size: 12.5px; color: var(--muted); margin: 0; }
+button { font: 600 14px var(--body); border-radius: 6px; padding: 9px 16px; border: 1px solid transparent; cursor: pointer; }
+button:focus-visible, select:focus-visible, textarea:focus-visible, input:focus-visible { outline: 2px solid var(--ok); outline-offset: 2px; }
+button:disabled { opacity: .55; cursor: default; }
+.primary { background: var(--ok); color: var(--panel); }
+.approve { background: var(--ok); color: var(--panel); }
+.reject { background: transparent; color: var(--bad); border-color: var(--bad); }
+.status { display: inline-flex; align-items: center; gap: 8px; font: 500 12px var(--mono); letter-spacing: .05em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; background: var(--code); color: var(--muted); }
+.status.running { color: var(--ink); }
+.status.awaiting_approval { background: var(--gate-tint); color: var(--gate); }
+.status.done { background: var(--ok-tint); color: var(--ok); }
+.status.failed { background: var(--bad-tint); color: var(--bad); }
+.spin { width: 10px; height: 10px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .spin { animation: none; } }
+.empty { color: var(--muted); padding: 28px 8px; text-align: center; }
+ol.timeline { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.step { border-left: 3px solid var(--line-soft); padding: 2px 0 2px 12px; display: grid; gap: 4px; min-width: 0; }
+.step.refused { border-left-color: var(--bad); }
+.step.decision.yes { border-left-color: var(--ok); }
+.step.decision.no { border-left-color: var(--bad); }
+.step .head { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: baseline; }
+.step .kind { font: 500 11px var(--mono); letter-spacing: .07em; text-transform: uppercase; color: var(--muted); }
+.step code.cmd { font: 500 13px var(--mono); word-break: break-word; }
+.step .why { font-size: 13px; color: var(--muted); }
+.badge { font: 600 10.5px var(--mono); letter-spacing: .06em; padding: 1px 6px; border-radius: 3px; text-transform: uppercase; }
+.badge.bad { background: var(--bad-tint); color: var(--bad); }
+.badge.ok { background: var(--ok-tint); color: var(--ok); }
+details summary { cursor: pointer; font-size: 12.5px; color: var(--muted); }
+pre.out { margin: 6px 0 0; font: 12px/1.45 var(--mono); background: var(--code); border-radius: 5px; padding: 8px 10px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; max-height: 260px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font: 12px var(--mono); padding: 2px 8px; border-radius: 4px; background: var(--code); }
+.card { border: 2px solid var(--gate); background: var(--gate-tint); border-radius: 8px; padding: 14px 16px; display: grid; gap: 10px; }
+.card.destructive { border-color: var(--bad); background: var(--bad-tint); }
+.card h3 { margin: 0; font: 600 1.05rem/1.3 var(--display); letter-spacing: .02em; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.card pre { margin: 0; font: 13px/1.5 var(--mono); background: var(--panel); border-radius: 5px; padding: 10px 12px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; }
+.card dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; font-size: 14px; }
+.card dt { font: 500 11.5px var(--mono); letter-spacing: .07em; text-transform: uppercase; color: var(--muted); padding-top: 2px; }
+.card dd { margin: 0; }
+.card input[type=text] { width: 100%; font: 14px var(--body); padding: 8px 10px; border-radius: 5px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); }
+.report { border-top: 1px solid var(--line-soft); padding-top: 12px; display: grid; gap: 8px; }
+.report .md { font-size: 14.5px; }
+.report .md p, .report .md ul, .report .md ol { margin: 0 0 8px; }
+.report .md code { font: 12.5px var(--mono); background: var(--code); padding: 0 4px; border-radius: 3px; }
+.report .md pre { font: 12.5px/1.45 var(--mono); background: var(--code); padding: 8px 10px; border-radius: 5px; overflow-x: auto; }
+.report .md h4 { margin: 10px 0 4px; font: 600 15px var(--display); }
+.footer { font: 12px var(--mono); color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 16px; font-variant-numeric: tabular-nums; }
+.error { background: var(--bad-tint); color: var(--bad); border-radius: 6px; padding: 10px 12px; font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>AI Workbench</h1>
+      <p class="tagline">Failed infrastructure run? Get a runbook-grounded diagnosis, a proposed fix you approve before anything changes, and a written report.</p>
+    </div>
+    <span class="engine" id="engine">Nemotron 3 Super · Nebius Token Factory</span>
+  </header>
+  <div class="banner" role="note"><b>Simulated host.</b><span>Commands run against a sandbox that imitates the broken servers in each sample. Nothing real is touched.</span></div>
+
+  <main>
+    <section class="panel" aria-labelledby="in-h">
+      <h2 id="in-h">1 · Choose a failed run</h2>
+      <div class="samples" id="samples" role="radiogroup" aria-label="Sample logs"></div>
+      <div>
+        <div class="label" style="margin-bottom:6px">Log</div>
+        <textarea id="log" spellcheck="false" aria-label="Log text" placeholder="Pick a sample above, or paste the failing part of a log here."></textarea>
+        <p class="hint" id="loghint"></p>
+      </div>
+      <div class="row">
+        <label class="toggle"><input type="checkbox" id="usekb" checked> Use runbooks</label>
+        <label class="toggle">Model <select id="model" aria-label="Model"></select></label>
+      </div>
+      <p class="hint">Turn runbooks off to see what the model does on its own: the before/after.</p>
+      <div class="row"><button class="primary" id="run">Run triage</button></div>
+      <div class="error" id="inerr" hidden></div>
+    </section>
+
+    <section class="panel" aria-labelledby="out-h" aria-live="polite">
+      <div class="row" style="justify-content:space-between">
+        <h2 id="out-h">2 · Agent run</h2>
+        <span class="status" id="status" hidden></span>
+      </div>
+      <div class="empty" id="empty">Pick a sample and press <b>Run triage</b>. The agent retrieves runbooks, checks the host with read-only commands, and stops for your approval before changing anything.</div>
+      <ol class="timeline" id="timeline"></ol>
+      <div id="card"></div>
+      <div class="report" id="report" hidden>
+        <div class="label">Report</div>
+        <div class="md" id="answer"></div>
+      </div>
+      <div class="footer" id="footer" hidden></div>
+    </section>
+  </main>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+let samples = [], current = null, pollTimer = null, cfg = null;
+
+function el(tag, attrs = {}, ...kids) {
+  const n = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (k === "class") n.className = v; else if (k === "text") n.textContent = v; else n.setAttribute(k, v);
+  }
+  for (const k of kids) if (k != null) n.append(k);
+  return n;
+}
+
+async function api(path, opts = {}) {
+  const r = await fetch(path, { headers: { "content-type": "application/json" }, ...opts });
+  let body = null;
+  try { body = await r.json(); } catch {}
+  if (!r.ok) throw new Error((body && body.detail) || `Request failed (${r.status})`);
+  return body;
+}
+
+// Small markdown renderer for the report: escapes first, then bold, code, headings, lists.
+function md(src) {
+  const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const inline = (s) => esc(s).replace(/`([^`]+)`/g, "<code>$1</code>").replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+  const out = []; let list = null, code = null;
+  const close = () => { if (list) { out.push(`</${list}>`); list = null; } };
+  for (const line of src.split("\n")) {
+    if (line.trim().startsWith("```")) {
+      if (code === null) { close(); code = []; } else { out.push(`<pre>${esc(code.join("\n"))}</pre>`); code = null; }
+      continue;
+    }
+    if (code !== null) { code.push(line); continue; }
+    let m;
+    if ((m = line.match(/^#{1,6}\s+(.*)/))) { close(); out.push(`<h4>${inline(m[1])}</h4>`); }
+    else if ((m = line.match(/^\s*[-*]\s+(.*)/))) { if (list !== "ul") { close(); out.push("<ul>"); list = "ul"; } out.push(`<li>${inline(m[1])}</li>`); }
+    else if ((m = line.match(/^\s*\d+[.)]\s+(.*)/))) { if (list !== "ol") { close(); out.push("<ol>"); list = "ol"; } out.push(`<li>${inline(m[1])}</li>`); }
+    else if (line.trim() === "") { close(); }
+    else { close(); out.push(`<p>${inline(line)}</p>`); }
+  }
+  close(); if (code) out.push(`<pre>${esc(code.join("\n"))}</pre>`);
+  return out.join("");
+}
+
+function shortModel(m) { return (m || "").replace("nvidia/", ""); }
+
+function renderSamples() {
+  const box = $("samples");
+  box.replaceChildren(...samples.map((s, i) => {
+    const input = el("input", { type: "radio", name: "sample", value: s.name, "aria-label": s.title });
+    if (i === 0) input.checked = true;
+    input.addEventListener("change", () => pick(s.name));
+    return el("label", { class: "sample" }, input, el("span", { text: s.title }), el("span", { class: "name", text: s.name }));
+  }), (() => {
+    const input = el("input", { type: "radio", name: "sample", value: "", "aria-label": "Paste my own log" });
+    input.addEventListener("change", () => pick(""));
+    return el("label", { class: "sample" }, input, el("span", { text: "Paste my own log" }),
+      el("span", { class: "name", text: "no simulated host: diagnostics return nothing" }));
+  })());
+  if (samples.length) pick(samples[0].name);
+}
+
+function pick(name) {
+  const s = samples.find((x) => x.name === name);
+  $("log").value = s ? s.log : "";
+  if (!s) $("log").focus();
+  updateHint();
+}
+
+function selectedSample() {
+  const r = document.querySelector('input[name="sample"]:checked');
+  return r && r.value ? r.value : null;
+}
+
+function updateHint() {
+  const n = new Blob([$("log").value]).size, max = cfg ? cfg.max_log_bytes : 20000;
+  $("loghint").textContent = `${(n / 1000).toFixed(1)} of ${max / 1000} KB`;
+  $("loghint").style.color = n > max ? "var(--bad)" : "";
+}
+
+function stepNode(s) {
+  if (s.kind === "runbooks") {
+    if (s.disabled) return el("li", { class: "step" }, el("div", { class: "head" }, el("span", { class: "kind", text: "Runbooks" }), el("span", { text: "Turned off for this run" })));
+    const chips = s.matched.length
+      ? el("div", { class: "chips" }, ...s.matched.map((m) => el("span", { class: "chip", text: `${m.source.replace("runbooks/", "")} · ${m.score.toFixed(2)}` })))
+      : el("span", { text: "No runbook matched; the agent reasons from the log alone." });
+    return el("li", { class: "step" }, el("div", { class: "head" }, el("span", { class: "kind", text: "Runbooks retrieved" })), chips);
+  }
+  if (s.kind === "search") {
+    return el("li", { class: "step" }, el("div", { class: "head" }, el("span", { class: "kind", text: "Runbook search" }), el("span", { text: s.query })),
+      el("div", { class: "chips" }, ...(s.matched.length ? s.matched : ["nothing matched"]).map((m) => el("span", { class: "chip", text: m.replace("runbooks/", "") }))));
+  }
+  if (s.kind === "diagnostic") {
+    const head = el("div", { class: "head" }, el("span", { class: "kind", text: "Check" }), el("code", { class: "cmd", text: s.command }),
+      s.refused ? el("span", { class: "badge bad", text: "refused" }) : null,
+      s.skipped ? el("span", { class: "badge", text: "skipped: limit reached" }) : null);
+    const out = el("details", s.refused ? { open: "" } : {}, el("summary", { text: s.refused ? "Why it was refused" : s.skipped ? "Why it was skipped" : "Output" }), el("pre", { class: "out", text: s.output }));
+    return el("li", { class: "step" + (s.refused ? " refused" : "") }, head, s.why ? el("div", { class: "why", text: s.why }) : null, out);
+  }
+  if (s.kind === "proposal") {
+    return el("li", { class: "step" }, el("div", { class: "head" }, el("span", { class: "kind", text: "Fix proposed" }),
+      el("span", { text: `${s.commands.length} command${s.commands.length > 1 ? "s" : ""}, waiting for you` }),
+      s.destructive ? el("span", { class: "badge bad", text: "destructive" }) : null));
+  }
+  if (s.kind === "decision") {
+    return el("li", { class: "step decision " + (s.approved ? "yes" : "no") },
+      el("div", { class: "head" }, el("span", { class: "kind", text: "Your decision" }),
+        el("span", { class: "badge " + (s.approved ? "ok" : "bad"), text: s.approved ? "approved" : "rejected" }),
+        s.note ? el("span", { class: "why", text: `“${s.note}”` }) : null),
+      el("details", {}, el("summary", { text: s.approved ? "What ran" : "What the agent was told" }), el("pre", { class: "out", text: s.output })));
+  }
+  return null;
+}
+
+function renderCard(run) {
+  const box = $("card");
+  if (run.status !== "awaiting_approval" || !run.pending) { box.replaceChildren(); return; }
+  if (box.dataset.for === run.id + run.steps.length) return; // keep the note the user is typing
+  box.dataset.for = run.id + run.steps.length;
+  const p = run.pending;
+  const note = el("input", { type: "text", id: "note", placeholder: "Note for the agent if you reject (optional)", "aria-label": "Note" });
+  const yes = el("button", { class: "approve", text: "Approve and run" });
+  const no = el("button", { class: "reject", text: "Reject" });
+  const send = async (approve) => {
+    yes.disabled = no.disabled = true;
+    try { show(await api(`/agent/runs/${run.id}/decision`, { method: "POST", body: JSON.stringify({ approve, note: note.value }) })); poll(); }
+    catch (e) { yes.disabled = no.disabled = false; alertIn(e.message); }
+  };
+  yes.addEventListener("click", () => send(true));
+  no.addEventListener("click", () => send(false));
+  box.replaceChildren(el("div", { class: "card" + (p.destructive ? " destructive" : "") },
+    el("h3", {}, "The agent wants to change the system", p.destructive ? el("span", { class: "badge bad", text: "destructive" }) : null),
+    el("pre", { text: p.commands.join("\n") }),
+    el("dl", {}, el("dt", { text: "Why" }), el("dd", { text: p.reason || "—" }), el("dt", { text: "Risk" }), el("dd", { text: p.risk || "—" })),
+    note, el("div", { class: "row" }, yes, no)));
+}
+
+function show(run) {
+  current = run;
+  $("empty").hidden = true;
+  const st = $("status");
+  st.hidden = false; st.className = "status " + run.status;
+  const label = { running: "Working", awaiting_approval: "Waiting for you", done: "Done", failed: "Stopped" }[run.status] || run.status;
+  st.replaceChildren(...(run.status === "running" ? [el("span", { class: "spin" })] : []), label);
+  $("timeline").replaceChildren(...run.steps.map(stepNode).filter(Boolean));
+  renderCard(run);
+  const finished = run.status === "done" || run.status === "failed";
+  $("report").hidden = !finished;
+  if (finished) $("answer").innerHTML = md(run.answer || "");
+  const f = $("footer");
+  f.hidden = run.turns === 0 && run.status === "running";
+  f.replaceChildren(
+    el("span", { text: shortModel(run.model) }),
+    el("span", { text: `${run.turns} model turns` }),
+    el("span", { text: `${run.diagnostics}/${run.limits.diagnostics} checks` }),
+    el("span", { text: `${run.usage.prompt.toLocaleString()} in / ${run.usage.completion.toLocaleString()} out tokens` }),
+    el("span", { text: `${run.usage.model_seconds}s on Token Factory` }),
+    el("span", { text: run.use_kb ? "runbooks on" : "runbooks off" }));
+  $("run").disabled = run.status === "running" || run.status === "awaiting_approval";
+}
+
+function poll() {
+  clearTimeout(pollTimer);
+  pollTimer = setTimeout(async () => {
+    try {
+      const run = await api(`/agent/runs/${current.id}`);
+      show(run);
+      if (run.status === "running") poll();
+    } catch (e) { alertIn(e.message); $("run").disabled = false; }
+  }, 900);
+}
+
+function alertIn(msg) { $("inerr").textContent = msg; $("inerr").hidden = false; }
+
+$("run").addEventListener("click", async () => {
+  $("inerr").hidden = true;
+  const log = $("log").value;
+  if (!log.trim()) { alertIn("Pick a sample or paste a log first."); return; }
+  $("run").disabled = true;
+  $("timeline").replaceChildren(); $("card").replaceChildren(); $("report").hidden = true;
+  try {
+    show(await api("/agent/runs", { method: "POST", body: JSON.stringify({ log, sample: selectedSample(), model: $("model").value, use_kb: $("usekb").checked }) }));
+    poll();
+  } catch (e) { alertIn(e.message); $("run").disabled = false; }
+});
+$("log").addEventListener("input", updateHint);
+
+(async () => {
+  try {
+    [cfg, samples] = await Promise.all([api("/config"), api("/samples")]);
+    $("model").replaceChildren(...cfg.models.map((m) => {
+      const o = el("option", { value: m, text: shortModel(m) + (m === cfg.default_model ? " (default)" : "") });
+      if (m === cfg.default_model) o.selected = true;
+      return o;
+    }));
+    const badge = () => { $("engine").textContent = `${$("model").value.includes("Ultra") ? "Nemotron 3 Ultra" : "Nemotron 3 Super"} · Nebius Token Factory`; };
+    $("model").addEventListener("change", badge); badge();
+    renderSamples();
+  } catch (e) { alertIn(e.message); }
+})();
+</script>
+</body>
+</html>

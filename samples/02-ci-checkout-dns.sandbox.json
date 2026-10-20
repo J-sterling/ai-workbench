@@ -1,0 +1,71 @@
+{
+  "commands": [
+    {
+      "when": "restarted",
+      "match": "^docker logs\\b.*runner",
+      "output": "level=info msg=\"Starting runner daemon\"\nlevel=info msg=\"runner: gitea-runner-1, with version: v0.2.11, with labels: [ubuntu-latest], declared successfully\""
+    },
+    {
+      "when": "net_ok",
+      "match": "^(cat|grep|head)\\b.*config\\.yaml",
+      "output": "runner:\n  capacity: 1\ncontainer:\n  network: gitea-net"
+    },
+    {
+      "when": "net_ok",
+      "match": "^docker network inspect\\b",
+      "output": "\"Name\": \"gitea-net\",\n\"Containers\": {\"gitea\": {...}, \"act_runner\": {...}}"
+    },
+    {
+      "match": "^docker ps\\b",
+      "output": "CONTAINER ID   IMAGE                       STATUS       NAMES\n9b1c2d3e4f5a   gitea/gitea:1.24            Up 6 days    gitea\n1a2b3c4d5e6f   gitea/act_runner:0.2.11     Up 6 days    act_runner"
+    },
+    {
+      "match": "^docker logs\\b.*runner",
+      "output": "level=info msg=\"Starting runner daemon\"\nlevel=info msg=\"task 412 repo is ops/infra https://gitea.example.internal\"\nlevel=info msg=\"task 412 finished\""
+    },
+    {
+      "match": "^docker network ls\\b",
+      "output": "NETWORK ID     NAME            DRIVER    SCOPE\n3c4d5e6f7a8b   bridge          bridge    local\n4d5e6f7a8b9c   gitea_default   bridge    local\n5e6f7a8b9c0d   host            host      local"
+    },
+    {
+      "match": "^docker network inspect\\b",
+      "output": "\"Name\": \"gitea_default\",\n\"Containers\": {\"gitea\": {...}, \"act_runner\": {...}}"
+    },
+    {
+      "match": "^docker inspect\\b",
+      "output": "\"Networks\": {\"gitea_default\": {\"Aliases\": [\"gitea\"]}}"
+    },
+    {
+      "match": "^(cat|grep|head)\\b.*config\\.yaml",
+      "output": "runner:\n  capacity: 1\ncontainer:\n  network: \"\""
+    },
+    {
+      "match": "^(ls|find)\\b.*runner",
+      "output": "/opt/gitea/runner/config.yaml\n/opt/gitea/runner/.runner"
+    }
+  ],
+  "actions": [
+    {
+      "match": "^docker network create\\b",
+      "output": "7f8a9b0c1d2e"
+    },
+    {
+      "match": "^docker network connect\\b",
+      "output": ""
+    },
+    {
+      "match": "(sed|yq|tee|echo|printf|cat)\\b.*(network|config\\.yaml)",
+      "output": "",
+      "sets": [
+        "net_ok"
+      ]
+    },
+    {
+      "match": "^docker (restart|compose\\b.*\\b(up|restart))\\b",
+      "output": "act_runner",
+      "sets": [
+        "restarted"
+      ]
+    }
+  ]
+}
