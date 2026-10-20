@@ -1,5 +1,7 @@
 # AI Workbench
 
+[![CI](https://github.com/J-sterling/ai-workbench/actions/workflows/ci.yml/badge.svg)](https://github.com/J-sterling/ai-workbench/actions/workflows/ci.yml)
+
 A self-hostable AI workbench built on Nebius Token Factory and NVIDIA Nemotron:
 connect your data, run an agent over it, and approve any risky action before it happens.
 The demo agent triages failed infrastructure runs (Ansible / Terraform logs).
@@ -109,6 +111,8 @@ Open http://127.0.0.1:8000/usage (or **Token usage →** in the header). It upda
 - Infrastructure logs often contain personal data (usernames, emails, IP addresses) and secrets. Remove them before pasting into the public demo. For real use, add masking and a data processing agreement with your model provider, and check your obligations under UK GDPR / GDPR.
 
 ## Deploy (single container)
+
+CI builds this image on every push to `main`, checks it (health, password, Super only, no `.env`, non-root) and publishes it as `ghcr.io/j-sterling/ai-workbench:latest` and `:sha-<commit>`. To roll back a deploy, run the previous `sha-` tag.
 
 The `Dockerfile` builds the web UI and agent into one image. Runbooks are searched in memory (`KB_BACKEND=memory`, embedded once at startup in about 3 seconds), so no database is needed. Only Nemotron Super can be chosen (`ALLOWED_MODELS`), and the server runs as one worker because runs and the daily cap live in memory.
 

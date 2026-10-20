@@ -2,7 +2,7 @@
 # Build for Nebius (amd64): docker build --platform linux/amd64 -t ai-workbench .
 FROM python:3.14-slim
 
-COPY --from=ghcr.io/astral-sh/uv:0.9 /uv /usr/local/bin/uv
+COPY --from=ghcr.io/astral-sh/uv:0.12 /uv /usr/local/bin/uv
 WORKDIR /app
 
 # Dependencies first so code changes don't reinstall them.
