@@ -1,0 +1,27 @@
+# Gitleaks rules for this repo: the defaults plus formats the defaults miss.
+# Run: gitleaks git --redact --config .gitleaks.toml .
+title = "ai-workbench"
+
+[extend]
+useDefault = true
+
+# Nebius Token Factory keys look like "v1." + long dotted/dashed segments.
+# No default rule matches them (checked 20 Oct 2026).
+[[rules]]
+id = "nebius-token-factory-key"
+description = "Nebius Token Factory API key"
+regex = '''\bv[0-9]\.[A-Za-z0-9]{100,}\.[A-Za-z0-9_-]{40,}'''
+
+[[rules]]
+id = "nebius-api-key-assignment"
+description = "A value assigned to NEBIUS_API_KEY"
+regex = '''NEBIUS_API_KEY\s*[=:]\s*['"]?[^\s'"$]{20,}'''
+
+[[rules]]
+id = "demo-password-assignment"
+description = "A value assigned to DEMO_PASSWORD"
+regex = '''DEMO_PASSWORD\s*[=:]\s*['"]?[^\s'"#$.]{6,}'''
+
+[allowlist]
+description = "Documented placeholders"
+paths = ['''\.env\.example$''']

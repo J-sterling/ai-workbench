@@ -17,6 +17,7 @@ uv run scripts/ingest_runbooks.py  # load runbooks/ into pgvector
 uv run scripts/agent_demo.py 01-garage-down  # agent in the terminal; you approve the fix
 uv run ai-workbench              # web UI and API on http://127.0.0.1:8000
 uv run pytest                    # sandbox and approval-guard tests
+scripts/install-hooks.sh         # before each commit: gitleaks secret scan + tests
 ```
 
 ## Runbook knowledge base
