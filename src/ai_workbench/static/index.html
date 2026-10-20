@@ -48,6 +48,8 @@ textarea { width: 100%; min-height: 190px; resize: vertical; font: 12.5px/1.45 v
 .toggle input { accent-color: var(--ok); width: 16px; height: 16px; }
 select { font: 13px var(--body); padding: 5px 8px; border-radius: 5px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); }
 .hint { font-size: 12.5px; color: var(--muted); margin: 0; }
+.notice { font-size: 12.5px; color: var(--muted); margin: 6px 0 0; padding: 6px 10px; border-left: 3px solid var(--line); background: var(--code); border-radius: 0 4px 4px 0; }
+.notice b { color: var(--ink); font-weight: 600; }
 button { font: 600 14px var(--body); border-radius: 6px; padding: 9px 16px; border: 1px solid transparent; cursor: pointer; }
 button:focus-visible, select:focus-visible, textarea:focus-visible, input:focus-visible { outline: 2px solid var(--ok); outline-offset: 2px; }
 button:disabled { opacity: .55; cursor: default; }
@@ -116,6 +118,7 @@ pre.out { margin: 6px 0 0; font: 12px/1.45 var(--mono); background: var(--code);
         <div class="label" style="margin-bottom:6px">Log</div>
         <textarea id="log" spellcheck="false" aria-label="Log text" placeholder="Pick a sample above, or paste the failing part of a log here."></textarea>
         <p class="hint" id="loghint"></p>
+        <p class="notice" role="note"><b>Don't paste personal data or secrets.</b> Logs are sent to Nebius Token Factory for the model and embedding calls, kept only in this server's memory (the last 200 runs) and gone when it restarts. Nothing is written to disk.</p>
       </div>
       <div class="row">
         <label class="toggle"><input type="checkbox" id="usekb" checked> Use runbooks</label>
