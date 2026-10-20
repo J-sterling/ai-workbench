@@ -21,3 +21,6 @@ backlog/
 # Local AI-assistant notes and agents, kept out of the public repo
 CLAUDE.md
 .claude/
+
+# Token usage counts written by the app
+var/

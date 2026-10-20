@@ -10,6 +10,13 @@ from openai.types.chat import ChatCompletionMessage, ChatCompletionMessageToolCa
 
 from ai_workbench import agent, kb  # noqa: E402
 
+@pytest.fixture(autouse=True)
+def _usage_file(tmp_path, monkeypatch):
+    """Keep tests from writing to the real var/usage.jsonl."""
+    from ai_workbench.config import settings
+    monkeypatch.setattr(settings, "usage_file", str(tmp_path / "usage.jsonl"))
+
+
 # Tool names offered on each scripted model call, newest last.
 TOOLS_SEEN: list[list[str]] = []
 
@@ -36,7 +43,7 @@ def model(monkeypatch):
     script: list[ChatCompletionMessage] = []
     sent: list[list[dict]] = []
 
-    def chat_tools(messages, tools, model=None, max_tokens=1024):
+    def chat_tools(messages, tools, model=None, max_tokens=1024, tag=""):
         sent.append([dict(m) for m in messages])
         TOOLS_SEEN.append([t["function"]["name"] for t in tools])
         return script.pop(0), Usage()

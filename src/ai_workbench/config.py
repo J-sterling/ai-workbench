@@ -25,6 +25,11 @@ class Settings(BaseSettings):
     # "pgvector" uses database_url; "memory" embeds runbooks/ at first use (no database needed).
     kb_backend: Literal["pgvector", "memory"] = "pgvector"
 
+    # Token usage log for the Usage page (counts only, no prompt text) and optional prices
+    # in USD per 1M tokens, e.g. PRICES='{"nvidia/nemotron-3-super-120b-a12b": [0.1, 0.5]}'.
+    usage_file: str = "var/usage.jsonl"
+    prices: dict[str, list[float]] = {}
+
     # Server. The container sets HOST=0.0.0.0; locally it stays on loopback.
     host: str = "127.0.0.1"
     port: int = 8000

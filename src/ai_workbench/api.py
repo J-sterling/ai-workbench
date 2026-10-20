@@ -5,7 +5,7 @@ from fastapi import APIRouter, BackgroundTasks, Depends, FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
-from ai_workbench import agent, guard, kb
+from ai_workbench import agent, guard, kb, usage
 from ai_workbench.config import settings
 from ai_workbench.sandbox import SAMPLES
 from ai_workbench.triage import triage
@@ -47,6 +47,17 @@ class Decision(BaseModel):
 @protected.get("/", include_in_schema=False)
 def index() -> FileResponse:
     return FileResponse(STATIC / "index.html")
+
+
+@protected.get("/usage", include_in_schema=False)
+def usage_page() -> FileResponse:
+    return FileResponse(STATIC / "usage.html")
+
+
+@protected.get("/usage/data")
+def usage_data() -> dict:
+    """Token counts per call, today and per minute. Holds no prompt or log text."""
+    return usage.summary()
 
 
 @protected.get("/config")

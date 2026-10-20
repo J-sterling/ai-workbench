@@ -12,3 +12,4 @@ docs/
 db/
 scripts/
 *.log.bak
+var/

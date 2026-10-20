@@ -194,7 +194,7 @@ def advance(run: Run, on_step: OnStep | None = None) -> Run:
         run.turns += 1
         tools = TOOLS if run.use_kb else [t for t in TOOLS if t["function"]["name"] != "search_runbooks"]
         t0 = time.monotonic()
-        msg, usage = llm.chat_tools(run.messages, tools, model=run.model, max_tokens=2048)
+        msg, usage = llm.chat_tools(run.messages, tools, model=run.model, max_tokens=2048, tag=run.id)
         run.model_seconds += time.monotonic() - t0
         if usage:
             run.prompt_tokens += usage.prompt_tokens

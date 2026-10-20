@@ -106,7 +106,10 @@ pre.out { margin: 6px 0 0; font: 12px/1.45 var(--mono); background: var(--code);
       <h1>AI Workbench</h1>
       <p class="tagline">Failed infrastructure run? Get a runbook-grounded diagnosis, a proposed fix you approve before anything changes, and a written report.</p>
     </div>
-    <span class="engine" id="engine">Nemotron 3 Super · Nebius Token Factory</span>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+      <a class="engine" href="/usage" style="text-decoration:none">Token usage →</a>
+      <span class="engine" id="engine">Nemotron 3 Super · Nebius Token Factory</span>
+    </div>
   </header>
   <div class="banner" role="note"><b>Simulated host.</b><span>Commands run against a sandbox that imitates the broken servers in each sample. Nothing real is touched.</span></div>
 
@@ -118,7 +121,7 @@ pre.out { margin: 6px 0 0; font: 12px/1.45 var(--mono); background: var(--code);
         <div class="label" style="margin-bottom:6px">Log</div>
         <textarea id="log" spellcheck="false" aria-label="Log text" placeholder="Pick a sample above, or paste the failing part of a log here."></textarea>
         <p class="hint" id="loghint"></p>
-        <p class="notice" role="note"><b>Don't paste personal data or secrets.</b> Logs are sent to Nebius Token Factory for the model and embedding calls, kept only in this server's memory (the last 200 runs) and gone when it restarts. Nothing is written to disk.</p>
+        <p class="notice" role="note"><b>Don't paste personal data or secrets.</b> Logs are sent to Nebius Token Factory for the model and embedding calls, kept only in this server's memory (the last 200 runs) and gone when it restarts. Only token counts are written to disk, never log text.</p>
       </div>
       <div class="row">
         <label class="toggle"><input type="checkbox" id="usekb" checked> Use runbooks</label>

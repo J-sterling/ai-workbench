@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Token Usage</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@600&display=swap">
+<style>
+/* Layout: header, tiles row, per-minute chart, then two tables. Same tokens as the triage page. */
+:root {
+  --bg: #f3f5f4; --panel: #ffffff; --ink: #18232b; --muted: #5b6a72; --line: #a9b6bb; --line-soft: #d8e0e2;
+  --ok: #0f7a6c; --ok-tint: #e2f2ef; --in: #0f7a6c; --out: #b26a00; --code: #eef2f1;
+  --display: "IBM Plex Sans Condensed", "Arial Narrow", sans-serif;
+  --body: "IBM Plex Sans", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) { :root {
+  --bg: #11181d; --panel: #18222a; --ink: #e3eaed; --muted: #94a5ad; --line: #4a5a62; --line-soft: #2a363d;
+  --ok: #4cc3b1; --ok-tint: #15302c; --in: #4cc3b1; --out: #f0a73c; --code: #111a20; color-scheme: dark } }
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.55 var(--body); }
+.wrap { max-width: 1240px; margin: 0 auto; padding: 0 16px 48px; display: grid; gap: 16px; }
+header { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 8px 24px; padding-top: 24px; }
+h1 { font: 600 1.9rem/1.1 var(--display); margin: 0; }
+.sub { margin: 4px 0 0; color: var(--muted); }
+a { color: var(--ok); }
+.live { display: inline-flex; align-items: center; gap: 8px; font: 500 12px var(--mono); color: var(--muted); }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); }
+.live.stale .dot { background: var(--line); }
+@media (prefers-reduced-motion: no-preference) { .live:not(.stale) .dot { animation: pulse 2s ease-in-out infinite; } }
+@keyframes pulse { 50% { opacity: .35; } }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr)); gap: 12px; }
+.tile, .card { background: var(--panel); border: 1px solid var(--line-soft); border-radius: 8px; padding: 14px 16px; min-width: 0; }
+.tile { display: grid; gap: 2px; }
+.lab { font: 500 11.5px var(--mono); letter-spacing: .07em; text-transform: uppercase; color: var(--muted); }
+.num { font: 600 1.7rem/1.15 var(--display); font-variant-numeric: tabular-nums; }
+.small { font-size: 12.5px; color: var(--muted); }
+h2 { font: 600 1.05rem/1.3 var(--display); letter-spacing: .02em; margin: 0 0 4px; }
+.legend { display: flex; gap: 14px; font-size: 12.5px; color: var(--muted); margin-bottom: 6px; }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+.chart { position: relative; }
+.chart svg { display: block; width: 100%; height: 180px; }
+.chart text { font: 11px var(--mono); fill: var(--muted); }
+.tip { position: absolute; pointer-events: none; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; font: 12px var(--mono); white-space: nowrap; box-shadow: 0 4px 14px rgb(0 0 0 / .15); }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 30rem), 1fr)); gap: 16px; }
+.scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13.5px; font-variant-numeric: tabular-nums; }
+th { text-align: left; font: 500 11.5px var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); padding: 6px 8px; border-bottom: 1px solid var(--line); }
+td { padding: 6px 8px; border-bottom: 1px solid var(--line-soft); }
+td.r, th.r { text-align: right; }
+td code { font: 12px var(--mono); }
+.kind { font: 600 10.5px var(--mono); text-transform: uppercase; letter-spacing: .05em; padding: 1px 6px; border-radius: 3px; background: var(--code); }
+.new { animation: flash 1.2s ease-out; }
+@keyframes flash { from { background: var(--ok-tint); } to { background: transparent; } }
+@media (prefers-reduced-motion: reduce) { .new { animation: none; } }
+.error { background: #fbe7e5; color: #b3261e; border-radius: 6px; padding: 10px 12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Token usage</h1>
+      <p class="sub">Every Nemotron and embedding call this app makes on Nebius Token Factory, from the web app and the scripts. Counts only: no prompt or log text is stored. <a href="/">Back to triage</a></p>
+    </div>
+    <span class="live" id="live"><span class="dot"></span><span id="livetext">Connecting…</span></span>
+  </header>
+  <div class="error" id="err" hidden></div>
+
+  <section class="tiles" aria-label="Today, UTC">
+    <div class="tile"><span class="lab">Calls today</span><span class="num" id="t-calls">—</span><span class="small" id="t-calls-all"></span></div>
+    <div class="tile"><span class="lab">Input tokens today</span><span class="num" id="t-in">—</span><span class="small" id="t-in-all"></span></div>
+    <div class="tile"><span class="lab">Output tokens today</span><span class="num" id="t-out">—</span><span class="small" id="t-out-all"></span></div>
+    <div class="tile"><span class="lab">Estimated cost today</span><span class="num" id="t-cost">—</span><span class="small" id="t-cost-note"></span></div>
+    <div class="tile"><span class="lab">Time on Token Factory</span><span class="num" id="t-sec">—</span><span class="small">today, summed over calls</span></div>
+  </section>
+
+  <section class="card">
+    <h2>Tokens per minute, last hour</h2>
+    <div class="legend"><span><i style="background:var(--in)"></i>input</span><span><i style="background:var(--out)"></i>output</span></div>
+    <div class="chart" id="chart"><svg id="svg" role="img" aria-label="Tokens per minute over the last hour"></svg><div class="tip" id="tip" hidden></div></div>
+  </section>
+
+  <div class="grid2">
+    <section class="card">
+      <h2>By model, today</h2>
+      <div class="scroll"><table><thead><tr><th>Model</th><th>Kind</th><th class="r">Calls</th><th class="r">In</th><th class="r">Out</th><th class="r">Cost</th></tr></thead><tbody id="models"></tbody></table></div>
+    </section>
+    <section class="card">
+      <h2>Latest calls</h2>
+      <div class="scroll"><table><thead><tr><th>When</th><th>Kind</th><th>Model</th><th class="r">In</th><th class="r">Out</th><th class="r">Secs</th><th>Run</th></tr></thead><tbody id="recent"></tbody></table></div>
+    </section>
+  </div>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const n = new Intl.NumberFormat("en");
+const compact = new Intl.NumberFormat("en", { notation: "compact", maximumFractionDigits: 1 });
+const big = (v) => (v >= 10000 ? compact.format(v) : n.format(v));
+const usd = (v) => (v == null ? "—" : v < 0.01 ? `$${v.toFixed(4)}` : `$${v.toFixed(2)}`);
+const short = (m) => m.replace(/^nvidia\//, "").replace(/^Qwen\//, "");
+let lastTs = 0;
+
+function cell(tr, text, cls) { const td = tr.insertCell(); td.textContent = text; if (cls) td.className = cls; return td; }
+
+function ago(ts, now) {
+  const s = Math.max(0, Math.round(now - ts));
+  return s < 60 ? `${s}s ago` : s < 3600 ? `${Math.round(s / 60)}m ago` : new Date(ts * 1000).toLocaleTimeString();
+}
+
+function drawChart(points) {
+  const svg = $("svg"), w = svg.clientWidth || 600, h = 180, padL = 44, padB = 22, padT = 8;
+  const max = Math.max(1, ...points.map((p) => p.in + p.out));
+  const step = (w - padL) / points.length, bw = Math.max(1, step - 2);
+  const y = (v) => h - padB - (v / max) * (h - padB - padT);
+  const ns = "http://www.w3.org/2000/svg";
+  svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
+  svg.replaceChildren();
+  const mk = (tag, attrs) => { const e = document.createElementNS(ns, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); svg.append(e); return e; };
+  (max > 1 ? [0, 0.5, 1] : [0]).forEach((f) => {
+    mk("line", { x1: padL, x2: w, y1: y(max * f), y2: y(max * f), stroke: "var(--line-soft)" });
+    mk("text", { x: padL - 6, y: y(max * f) + 4, "text-anchor": "end" }).textContent = big(Math.round(max * f));
+  });
+  points.forEach((p, i) => {
+    const x = padL + i * step + 1;
+    if (p.in) mk("rect", { x, width: bw, y: y(p.in), height: h - padB - y(p.in), fill: "var(--in)", rx: 1.5 });
+    if (p.out) mk("rect", { x, width: bw, y: y(p.in + p.out), height: y(p.in) - y(p.in + p.out), fill: "var(--out)", rx: 1.5 });
+    const hit = mk("rect", { x: padL + i * step, width: step, y: padT, height: h - padB - padT, fill: "transparent" });
+    hit.addEventListener("mousemove", (e) => {
+      const t = $("tip"), box = $("chart").getBoundingClientRect();
+      t.textContent = `${new Date(p.minute * 1000).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} · ${p.calls} calls · ${n.format(p.in)} in · ${n.format(p.out)} out`;
+      t.hidden = false;
+      const left = Math.min(e.clientX - box.left + 12, box.width - t.offsetWidth - 4);
+      t.style.left = `${Math.max(0, left)}px`; t.style.top = "4px";
+    });
+    hit.addEventListener("mouseleave", () => { $("tip").hidden = true; });
+  });
+  [0, 30, 59].forEach((i) => {
+    const p = points[i]; if (!p) return;
+    const label = i === 59 ? "now" : `-${60 - i}m`;
+    mk("text", { x: padL + i * step + step / 2, y: h - 6, "text-anchor": i === 0 ? "start" : i === 59 ? "end" : "middle" }).textContent = label;
+  });
+}
+
+function render(d) {
+  const t = d.today, a = d.all_time;
+  $("t-calls").textContent = n.format(t.calls); $("t-calls-all").textContent = `${n.format(a.calls)} all time`;
+  $("t-in").textContent = big(t.in); $("t-in-all").textContent = `${big(a.in)} all time`;
+  $("t-out").textContent = big(t.out); $("t-out-all").textContent = `${big(a.out)} all time`;
+  $("t-cost").textContent = usd(t.cost);
+  $("t-cost-note").textContent = !d.priced_models.length ? "set PRICES in .env to estimate" : t.unpriced_calls ? `${t.unpriced_calls} calls have no price set` : "from PRICES in .env";
+  $("t-sec").textContent = `${n.format(Math.round(t.seconds))}s`;
+  drawChart(d.per_minute);
+
+  $("models").replaceChildren(...(d.by_model.length ? d.by_model.map((m) => {
+    const tr = document.createElement("tr");
+    cell(tr, short(m.model)); cell(tr, "").append(Object.assign(document.createElement("span"), { className: "kind", textContent: m.kind }));
+    cell(tr, n.format(m.calls), "r"); cell(tr, n.format(m.in), "r"); cell(tr, n.format(m.out), "r"); cell(tr, usd(m.cost), "r");
+    return tr;
+  }) : [Object.assign(document.createElement("tr"), { innerHTML: '<td colspan="6" class="small">No calls yet today. Run a triage and watch this fill.</td>' })]));
+
+  $("recent").replaceChildren(...d.recent.map((r) => {
+    const tr = document.createElement("tr");
+    if (r.ts > lastTs && lastTs) tr.className = "new";
+    cell(tr, ago(r.ts, d.now)); cell(tr, "").append(Object.assign(document.createElement("span"), { className: "kind", textContent: r.kind }));
+    cell(tr, short(r.model)); cell(tr, n.format(r.in), "r"); cell(tr, n.format(r.out), "r"); cell(tr, r.s.toFixed(1), "r");
+    cell(tr, "").append(Object.assign(document.createElement("code"), { textContent: r.tag || "" }));
+    return tr;
+  }));
+  if (d.recent.length) lastTs = Math.max(lastTs, d.recent[0].ts);
+}
+
+async function tick() {
+  try {
+    const r = await fetch("/usage/data");
+    if (!r.ok) throw new Error(`Usage data unavailable (${r.status})`);
+    render(await r.json());
+    $("err").hidden = true; $("live").classList.remove("stale");
+    $("livetext").textContent = `Live · updated ${new Date().toLocaleTimeString()}`;
+  } catch (e) {
+    $("err").textContent = e.message; $("err").hidden = false; $("live").classList.add("stale"); $("livetext").textContent = "Reconnecting…";
+  }
+  setTimeout(tick, document.hidden ? 10000 : 2000);
+}
+tick();
+</script>
+</body>
+</html>
