@@ -24,3 +24,6 @@ CLAUDE.md
 
 # Token usage counts written by the app
 var/
+
+# Local deploy history (image digests)
+deploy/history.log
