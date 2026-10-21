@@ -21,7 +21,11 @@ ENV HOST=0.0.0.0 \
     ALLOWED_MODELS='["nvidia/nemotron-3-super-120b-a12b"]' \
     PYTHONUNBUFFERED=1
 
-RUN useradd --create-home app && chown -R app /app
+# The app runs from /app/.venv; the base image's pip, setuptools and bundled installers are unused
+# and carry vendored copies of certifi/urllib3 that Trivy flags, so drop them.
+RUN python -m pip uninstall -y pip setuptools wheel 2>/dev/null; \
+    rm -rf /usr/local/lib/python3.*/ensurepip /usr/local/bin/pip*; \
+    useradd --create-home app && chown -R app /app
 USER app
 EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=3s CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"

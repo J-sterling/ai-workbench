@@ -80,6 +80,13 @@ jobs:
           curl -sf --user "ci:$pw" localhost:8000/config | grep -q '"models":\["nvidia/nemotron-3-super-120b-a12b"\]'  # Super only
           docker exec app sh -c 'test ! -e /app/.env && test "$(id -un)" = app'  # no .env, non-root
           docker rm -f app
+      # Report HIGH/CRITICAL findings; fail only on CRITICAL ones that have a fix
+      # (unfixed Debian base-image findings would otherwise block every build).
+      - name: Vulnerability scan (Trivy)
+        run: |
+          trivy() { docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v trivy-cache:/root/.cache aquasec/trivy:0.76.1 image --quiet "$@" ai-workbench:ci; }
+          trivy --severity HIGH,CRITICAL --format table --exit-code 0
+          trivy --severity CRITICAL --ignore-unfixed --exit-code 1
       - name: Log in to ghcr.io
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: docker/login-action@v4
