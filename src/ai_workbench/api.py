@@ -1,3 +1,4 @@
+import os
 import threading
 from pathlib import Path
 
@@ -142,7 +143,8 @@ def _run(run_id: str) -> agent.Run:
 # /health stays outside the password so a hosting platform can probe it.
 @app.get("/health")
 def health() -> dict:
-    return {"status": "ok"}
+    # version is the git commit the image was built from (set by CI), so a promote can be verified.
+    return {"status": "ok", "version": os.environ.get("APP_VERSION", "dev")}
 
 
 app.include_router(protected)

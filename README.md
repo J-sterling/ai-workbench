@@ -112,7 +112,21 @@ Open http://127.0.0.1:8000/usage (or **Token usage →** in the header). It upda
 
 ## Deploy (single container)
 
-CI builds this image on every push to `main`, checks it (health, password, Super only, no `.env`, non-root) and publishes it as `ghcr.io/j-sterling/ai-workbench:latest` and `:sha-<commit>`. To roll back a deploy, run the previous `sha-` tag.
+CI builds this image on every push to `main`. It checks it: health and the commit in `/health`, the password, Super only, no `.env`, non-root, and Trivy. It then publishes it as `ghcr.io/j-sterling/ai-workbench:latest` and `:sha-<commit>`.
+
+### Nebius Serverless endpoint (live demo)
+
+The demo endpoint runs a moving tag, `:demo`. Shipping a change keeps the same public URL:
+
+```bash
+scripts/promote.sh <commit>   # "Promote to demo" workflow retags sha-<commit> as :demo, restarts the endpoint,
+                              # waits until /health reports <commit>, then smoke-tests (if DEMO_PASSWORD is set)
+scripts/rollback.sh           # promotes the previous commit again (same URL)
+scripts/endpoint.sh stop      # a stopped endpoint isn't billed; start/restart/status/url/logs too
+scripts/deploy.sh             # first time only: creates the endpoint (CPU only, 20Gi disk, asks before creating)
+```
+
+Only commits that CI has published can be promoted, so every live version has passed the tests, the secret scan, the smoke test and Trivy. Nebius endpoints have no in-place update. If a restart ever fails to pull the new `:demo`, `promote.sh` stops with an error. The fallback is to delete and recreate the endpoint, which changes the URL.
 
 The `Dockerfile` builds the web UI and agent into one image. Runbooks are searched in memory (`KB_BACKEND=memory`, embedded once at startup in about 3 seconds), so no database is needed. Only Nemotron Super can be chosen (`ALLOWED_MODELS`), and the server runs as one worker because runs and the daily cap live in memory.
 

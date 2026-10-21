@@ -26,6 +26,12 @@ def run_until_paused(client, script, **body):
     return client.get(f"/agent/runs/{started.json()['id']}").json()
 
 
+def test_health_reports_version(client, monkeypatch):
+    assert client.get("/health").json() == {"status": "ok", "version": "dev"}
+    monkeypatch.setenv("APP_VERSION", "abc123")
+    assert client.get("/health").json()["version"] == "abc123"
+
+
 def test_page_config_and_samples(client):
     assert "Simulated host" in client.get("/").text
     assert settings.model_smart in client.get("/config").json()["models"]

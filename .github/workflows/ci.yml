@@ -69,6 +69,7 @@ jobs:
           platforms: linux/amd64
           load: true
           tags: ai-workbench:ci
+          build-args: GIT_SHA=${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
       - name: Smoke test the image
@@ -76,6 +77,7 @@ jobs:
           pw="$(openssl rand -hex 16)"  # throwaway password for this run only
           docker run -d --name app -p 8000:8000 -e NEBIUS_API_KEY=test-placeholder -e DEMO_PASSWORD="$pw" ai-workbench:ci
           for i in $(seq 1 30); do curl -sf localhost:8000/health && break; sleep 1; done
+          curl -sf localhost:8000/health | grep -q '"version":"${{ github.sha }}"'   # image reports its commit
           test "$(curl -s -o /dev/null -w '%{http_code}' localhost:8000/samples)" = 401   # password enforced
           curl -sf --user "ci:$pw" localhost:8000/config | grep -q '"models":\["nvidia/nemotron-3-super-120b-a12b"\]'  # Super only
           docker exec app sh -c 'test ! -e /app/.env && test "$(id -un)" = app'  # no .env, non-root
@@ -101,6 +103,7 @@ jobs:
           context: .
           platforms: linux/amd64
           push: true
+          build-args: GIT_SHA=${{ github.sha }}
           tags: |
             ${{ env.IMAGE }}:sha-${{ github.sha }}
             ${{ env.IMAGE }}:latest

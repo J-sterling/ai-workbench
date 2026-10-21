@@ -1,0 +1,55 @@
+# Point the moving :demo tag at an already tested image. The demo endpoint runs :demo, so a promote
+# plus an endpoint restart ships a change (or a rollback) without changing the public URL.
+# Only images CI has published can be promoted: sha-<commit> exists only after tests, secret scan,
+# smoke test and Trivy passed on main.
+name: Promote to demo
+
+on:
+  workflow_dispatch:
+    inputs:
+      sha:
+        description: Full commit SHA whose CI-published image should become :demo
+        required: true
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: promote-demo
+  cancel-in-progress: false
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate input
+        env:
+          SHA: ${{ inputs.sha }}
+        run: |
+          [[ "$SHA" =~ ^[0-9a-f]{40}$ ]] || { echo "::error::sha must be a full 40-character commit SHA"; exit 1; }
+          echo "IMAGE=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/ai-workbench" >> "$GITHUB_ENV"
+      - uses: docker/setup-buildx-action@v4
+      - uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Retag sha-<commit> as :demo (no rebuild)
+        env:
+          SHA: ${{ inputs.sha }}
+        run: |
+          digest_of() { docker buildx imagetools inspect "$1" --format '{{json .Manifest}}' 2>/dev/null | python3 -c 'import json,sys; print(json.load(sys.stdin)["digest"])'; }
+          NEW=$(digest_of "$IMAGE:sha-$SHA") || { echo "::error::$IMAGE:sha-$SHA not found. Wait for CI on main to publish it."; exit 1; }
+          OLD=$(digest_of "$IMAGE:demo" || echo "none")
+          docker buildx imagetools create --tag "$IMAGE:demo" "$IMAGE:sha-$SHA"
+          [ "$(digest_of "$IMAGE:demo")" = "$NEW" ] || { echo "::error:::demo does not point at the new digest"; exit 1; }
+          {
+            echo "### :demo promoted"
+            echo "| | |"; echo "|---|---|"
+            echo "| commit | \`${SHA:0:7}\` |"
+            echo "| new digest | \`$NEW\` |"
+            echo "| previous digest | \`$OLD\` |"
+            echo
+            echo "Next: restart the endpoint (\`scripts/endpoint.sh restart\`) so it pulls :demo."
+          } >> "$GITHUB_STEP_SUMMARY"

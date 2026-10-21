@@ -195,9 +195,9 @@
   "id": "C7",
   "group": "Constraints",
   "item": "Demo updates reach the same URL (mutable deploys)",
-  "status": "Not started",
-  "detail": "Nebius endpoints have no in-place update; recreating may change the URL that goes in Devpost.",
-  "next": "Run the endpoint on a promoted :demo tag; ship changes with promote + restart; test that restart pulls the new image."
+  "status": "Partly done",
+  "detail": "Endpoint runs the moving :demo tag. A promote workflow (GitHub Actions) retags a CI-published sha- image as :demo; scripts/promote.sh then restarts the endpoint and waits until /health reports the new commit. Rollback promotes the previous commit. /health now returns the image's commit.",
+  "next": "Verify on the live endpoint that restart pulls the new :demo (promote A, then B, then roll back; same URL)."
  },
  {
   "id": "B1",

@@ -15,7 +15,10 @@ COPY samples ./samples
 RUN uv sync --locked --no-dev
 
 # Public demo defaults. Secrets (NEBIUS_API_KEY, DEMO_PASSWORD) come from the platform, never the image.
+# The commit this image was built from; /health reports it so promotes can be verified.
+ARG GIT_SHA=dev
 ENV HOST=0.0.0.0 \
+    APP_VERSION=$GIT_SHA \
     PORT=8000 \
     KB_BACKEND=memory \
     ALLOWED_MODELS='["nvidia/nemotron-3-super-120b-a12b"]' \

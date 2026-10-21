@@ -7,6 +7,8 @@ PLATFORM="${PLATFORM:-cpu-d3}"
 PRESET="${PRESET:-2vcpu-8gb}"
 DISK_SIZE="${DISK_SIZE:-20Gi}"
 IMAGE_REPO="ghcr.io/j-sterling/ai-workbench"
+# The endpoint always runs this moving tag; scripts/promote.sh points it at a tested sha- image.
+DEMO_TAG="demo"
 HISTORY="$(git rev-parse --show-toplevel)/deploy/history.log"
 
 die() { echo "error: $*" >&2; exit 1; }
@@ -26,3 +28,6 @@ image_digest() {
 }
 
 endpoint_id() { "$NB" ai endpoint get-by-name --name "$ENDPOINT_NAME" --format jsonpath='{.metadata.id}' 2>/dev/null || true; }
+
+# history.log columns: time  action  commit  digest
+record() { mkdir -p "$(dirname "$HISTORY")"; printf '%s\t%s\t%s\t%s\n' "$(date -u +%FT%TZ)" "$1" "$2" "$3" >> "$HISTORY"; }
