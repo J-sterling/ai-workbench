@@ -128,6 +128,8 @@ scripts/endpoint.sh stop      # a stopped endpoint isn't billed; start/restart/s
 scripts/deploy.sh             # first time only: creates the endpoint (CPU only, 20Gi disk, asks before creating)
 ```
 
+**Costs.** `scripts/finops-export.sh` pulls the Nebius billing export (FOCUS 1.2 CSV, free and read-only; needs `NEBIUS_CONTRACT_ID` in `.env`) and builds daily cost rows in `var/finops/`, merged with `docs/tracker/finops_manual.json` (budget, run window, rates, and anything billed elsewhere, such as Token Factory). Bill data stays out of the repo.
+
 Only commits that CI has published can be promoted, so every live version has passed the tests, the secret scan, the smoke test and Trivy. Nebius endpoints have no in-place update. If a restart ever fails to pull the new `:demo`, `promote.sh` stops with an error. The fallback is to delete and recreate the endpoint, which changes the URL.
 
 The `Dockerfile` builds the web UI and agent into one image. Runbooks are searched in memory (`KB_BACKEND=memory`, embedded once at startup in about 3 seconds), so no database is needed. Only Nemotron Super can be chosen (`ALLOWED_MODELS`), and the server runs as one worker because runs and the daily cap live in memory.
