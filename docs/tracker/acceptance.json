@@ -59,17 +59,17 @@
   "id": "S5",
   "group": "Submission",
   "item": "Working demo URL until 15 Dec",
-  "status": "Partly done",
-  "detail": "Nebius AI Cloud billing active (card added 21 Oct). Image hardened (Trivy: 0 Python CVEs) and published by CI. Deploy, stop/start, rollback and smoke scripts committed; smoke test passes locally. Target: cpu-d3 2vcpu-8gb in uk-south1, ~$77 to 15 Dec, stopped when idle until submission.",
-  "next": "User runs nebius profile create (Google sign-in); then SecretStash secret, $25 budget alert, deploy, smoke test on the live URL."
+  "status": "Done",
+  "detail": "Live on a Nebius Serverless AI endpoint (cpu-d3 2vcpu-8gb, uk-south1): https://port8000-mdrw2067ezb2w1c.tunnel.applications.uk-south1.nebius.cloud. Password-protected; smoke test passes (health, password, Super only, Garage run to approval). $25 budget alert set.",
+  "next": "Keep running from submission to 15 Dec; stop it when idle before submission (scripts/endpoint.sh stop)."
  },
  {
   "id": "S6",
   "group": "Submission",
   "item": "Testing instructions",
-  "status": "Not started",
-  "detail": "Needs the demo URL and password.",
-  "next": "Write after deploy."
+  "status": "Partly done",
+  "detail": "URL ready; password stored in .env (HF_DEMO_PASSWORD) and SecretStash.",
+  "next": "Write the Devpost testing instructions: URL, password (private field), 3 samples, simulated host."
  },
  {
   "id": "S7",
@@ -195,9 +195,9 @@
   "id": "C7",
   "group": "Constraints",
   "item": "Demo updates reach the same URL (mutable deploys)",
-  "status": "Partly done",
-  "detail": "Endpoint runs the moving :demo tag. A promote workflow (GitHub Actions) retags a CI-published sha- image as :demo; scripts/promote.sh then restarts the endpoint and waits until /health reports the new commit. Rollback promotes the previous commit. /health now returns the image's commit.",
-  "next": "Verify on the live endpoint that restart pulls the new :demo (promote A, then B, then roll back; same URL)."
+  "status": "Done",
+  "detail": "Verified on the live endpoint 21 Oct: promote 9fdf1cc -> 0746aa9 and rollback back to 9fdf1cc each changed /health's version with the same URL; smoke test passed after each.",
+  "next": ""
  },
  {
   "id": "B1",

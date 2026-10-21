@@ -60,9 +60,9 @@
   "licence_status": "Approved with conditions",
   "where": "SaaS (EU)",
   "cost": "~$0.066/h on cpu-d3 2vcpu-8gb (uk-south1), ~$77 to 15 Dec; stopped endpoints aren't billed",
-  "lifecycle": "Planned",
-  "security": "Billing active (card, 21 Oct). Secrets via SecretStash (free in preview).",
-  "action": "Create the CLI profile (Google), SecretStash secret and a $25 budget alert; deploy."
+  "lifecycle": "In use (live demo endpoint)",
+  "security": "Billing active; $25 monthly budget with 50/80/100% alerts; secrets in SecretStash (ai-workbench-secrets); no public IP, no SSH.",
+  "action": "Stop when idle until submission; keep running 27 Oct to 15 Dec; top up the balance when alerts arrive."
  },
  {
   "id": "SV3",
