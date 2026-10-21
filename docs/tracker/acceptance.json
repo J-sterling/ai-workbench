@@ -60,8 +60,8 @@
   "group": "Submission",
   "item": "Working demo URL until 15 Dec",
   "status": "Done",
-  "detail": "Live on a Nebius Serverless AI endpoint (cpu-d3 2vcpu-8gb, uk-south1): https://port8000-mdrw2067ezb2w1c.tunnel.applications.uk-south1.nebius.cloud. Password-protected; smoke test passes (health, password, Super only, Garage run to approval). $25 budget alert set.",
-  "next": "Keep running from submission to 15 Dec; stop it when idle before submission (scripts/endpoint.sh stop)."
+  "detail": "Live on a Nebius Serverless AI endpoint (cpu-d3 2vcpu-8gb, uk-south1): https://port8000-mdrw2067ezb2w1c.tunnel.applications.uk-south1.nebius.cloud. Password-protected; smoke test passes (health, password, Super only, Garage run to approval). $25 budget alert set. Currently STOPPED (no charges) until needed; start with scripts/endpoint.sh start.",
+  "next": "Start for testing/video; keep running from submission (~27 Oct) to 15 Dec."
  },
  {
   "id": "S6",
