@@ -1,0 +1,210 @@
+[
+ {
+  "id": "E1",
+  "group": "Eligibility",
+  "item": "Runtime call to Nebius Token Factory",
+  "status": "Done",
+  "detail": "Every run calls Nemotron through Token Factory (llm.py); live runs on 20 Oct.",
+  "next": ""
+ },
+ {
+  "id": "E2",
+  "group": "Eligibility",
+  "item": "Uses an NVIDIA open model",
+  "status": "Done",
+  "detail": "Nemotron 3 Super for the agent loop; Ultra available locally.",
+  "next": ""
+ },
+ {
+  "id": "E3",
+  "group": "Eligibility",
+  "item": "Fits the Best Apps and Agents track",
+  "status": "Done",
+  "detail": "Pass in every hackathon-judge review.",
+  "next": ""
+ },
+ {
+  "id": "S1",
+  "group": "Submission",
+  "item": "Working project",
+  "status": "Done",
+  "detail": "Web UI, agent and container tested end to end; 110 tests pass.",
+  "next": ""
+ },
+ {
+  "id": "S2",
+  "group": "Submission",
+  "item": "Public code repository",
+  "status": "Done",
+  "detail": "github.com/J-sterling/ai-workbench, public; CI green on main; fresh clone passes 115 tests.",
+  "next": ""
+ },
+ {
+  "id": "S3",
+  "group": "Submission",
+  "item": "Open-source licence in About",
+  "status": "Done",
+  "detail": "Apache License 2.0 detected by GitHub.",
+  "next": ""
+ },
+ {
+  "id": "S4",
+  "group": "Submission",
+  "item": "README: setup, Nemotron and Token Factory use",
+  "status": "Partly done",
+  "detail": "Setup, web UI, token usage page, limits, data handling and deploy (single container + CI image) are written.",
+  "next": "Add 'How Nemotron and Token Factory are used', open with the on-call problem, list Nebius services."
+ },
+ {
+  "id": "S5",
+  "group": "Submission",
+  "item": "Working demo URL until 15 Dec",
+  "status": "Partly done",
+  "detail": "Nebius AI Cloud billing active (card added 21 Oct). Image hardened (Trivy: 0 Python CVEs) and published by CI. Deploy, stop/start, rollback and smoke scripts committed; smoke test passes locally. Target: cpu-d3 2vcpu-8gb in uk-south1, ~$77 to 15 Dec, stopped when idle until submission.",
+  "next": "User runs nebius profile create (Google sign-in); then SecretStash secret, $25 budget alert, deploy, smoke test on the live URL."
+ },
+ {
+  "id": "S6",
+  "group": "Submission",
+  "item": "Testing instructions",
+  "status": "Not started",
+  "detail": "Needs the demo URL and password.",
+  "next": "Write after deploy."
+ },
+ {
+  "id": "S7",
+  "group": "Submission",
+  "item": "Demo video under 3 minutes on YouTube",
+  "status": "Not started",
+  "detail": "Story chosen: before/after on sample 03, approval gate.",
+  "next": "Script, record with iTerm2 profile, upload."
+ },
+ {
+  "id": "S8",
+  "group": "Submission",
+  "item": "Text description on Devpost",
+  "status": "Not started",
+  "detail": "",
+  "next": "Draft from README."
+ },
+ {
+  "id": "S9",
+  "group": "Submission",
+  "item": "Track selected",
+  "status": "Not started",
+  "detail": "Decided: Best Apps and Agents.",
+  "next": "Select on the Devpost form."
+ },
+ {
+  "id": "S10",
+  "group": "Submission",
+  "item": "Feedback on Nebius and NVIDIA tools",
+  "status": "Not started",
+  "detail": "Notes collected: model names, Lightning reasoning leak, tool calls, embeddings.",
+  "next": "Write it up (also enters Most Valuable Feedback)."
+ },
+ {
+  "id": "S11",
+  "group": "Submission",
+  "item": "Pre-existing work explained",
+  "status": "Not started",
+  "detail": "Runbooks were sanitized from the author's homelab repo.",
+  "next": "Write the note."
+ },
+ {
+  "id": "J1",
+  "group": "Judging",
+  "item": "Technological implementation",
+  "status": "Done",
+  "detail": "Tool loop, approval gate, read-only guard, 110 tests, container.",
+  "next": ""
+ },
+ {
+  "id": "J2",
+  "group": "Judging",
+  "item": "Design",
+  "status": "Partly done",
+  "detail": "About 70% closed: full flow on one page.",
+  "next": "Add one-click with/without runbooks compare, openable runbooks, header links."
+ },
+ {
+  "id": "J3",
+  "group": "Judging",
+  "item": "Potential impact",
+  "status": "Partly done",
+  "detail": "Before/after exists but only by running twice.",
+  "next": "Show the contrast on the page; rewrite the README opening."
+ },
+ {
+  "id": "J4",
+  "group": "Judging",
+  "item": "Quality of the idea",
+  "status": "Done",
+  "detail": "Refused checks and the approval gate are visible in the UI.",
+  "next": ""
+ },
+ {
+  "id": "C1",
+  "group": "Constraints",
+  "item": "No secrets in the repository",
+  "status": "Done",
+  "detail": "Gitignored local files; custom gitleaks rule for Nebius keys; pre-commit hook; GitHub secret scanning, push protection and Dependabot on.",
+  "next": ""
+ },
+ {
+  "id": "C2",
+  "group": "Constraints",
+  "item": "Public demo cannot burn credits",
+  "status": "Done",
+  "detail": "Optional password, 200 runs a day, 20 KB logs, Super only.",
+  "next": ""
+ },
+ {
+  "id": "C3",
+  "group": "Constraints",
+  "item": "Simulated host disclosed",
+  "status": "Partly done",
+  "detail": "Shown in the UI banner and README.",
+  "next": "Say it in the video."
+ },
+ {
+  "id": "C4",
+  "group": "Constraints",
+  "item": "Data and limitations notice",
+  "status": "Done",
+  "detail": "Notice under the log box; README section.",
+  "next": ""
+ },
+ {
+  "id": "C5",
+  "group": "Constraints",
+  "item": "Automated tests run on every push",
+  "status": "Done",
+  "detail": "GitHub Actions on every push and PR: 115 tests, gitleaks over full history, image build, smoke test and Trivy scan (fails on fixable CRITICAL); publishes ghcr.io/j-sterling/ai-workbench. Local pre-commit hook too.",
+  "next": ""
+ },
+ {
+  "id": "C6",
+  "group": "Constraints",
+  "item": "Third-party licences and software assets reviewed",
+  "status": "Partly done",
+  "detail": "58 components registered. Done: Dependabot, uv aligned, gitleaks in CI, Trivy in CI, pip removed from image (Python CVEs 5 to 0), deploy pins by digest. 44 Debian HIGH findings have no upstream fix and are accepted.",
+  "next": "Self-host fonts, add psycopg licence notice, verify Nemotron licence terms."
+ },
+ {
+  "id": "C7",
+  "group": "Constraints",
+  "item": "Demo updates reach the same URL (mutable deploys)",
+  "status": "Not started",
+  "detail": "Nebius endpoints have no in-place update; recreating may change the URL that goes in Devpost.",
+  "next": "Run the endpoint on a promoted :demo tag; ship changes with promote + restart; test that restart pulls the new image."
+ },
+ {
+  "id": "B1",
+  "group": "Bonus",
+  "item": "Best Use of Tavily ($3k)",
+  "status": "Not started",
+  "detail": "Needs a working runtime Tavily call.",
+  "next": "Optional: web search when no runbook matches."
+ }
+]
