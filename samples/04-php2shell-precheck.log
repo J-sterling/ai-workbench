@@ -1,0 +1,16 @@
+PLAY [Deploy shop-web to production] *******************************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [web-01]
+
+TASK [php_guard : Read installed PHP version] **********************************
+ok: [web-01]
+
+TASK [php_guard : Block deploy on vulnerable PHP] ******************************
+fatal: [web-01]: FAILED! => {"assertion": "php_version is version('8.3.36', '>=')", "changed": false, "evaluated_to": false, "msg": "PHP 8.3.30 is vulnerable to CVE-2026-109618 and CVE-2026-109619 (PHP2Shell, unauthenticated remote code execution). Patch PHP to 8.3.36 or later before deploying to production."}
+
+PLAY RECAP *********************************************************************
+web-01                     : ok=2    changed=0    unreachable=0    failed=1    skipped=0    rescued=0    ignored=0
+
+# operator notes: web-01 runs nginx + php8.3-fpm from the ondrej/php PPA on Ubuntu 24.04.
+# The PHP security release came out on 21 Oct. Unattended upgrades are on, but PHP is still on 8.3.30.

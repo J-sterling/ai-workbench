@@ -1,0 +1,134 @@
+{
+  "commands": [
+    {
+      "when": "patched",
+      "match": "^php\\b",
+      "output": "PHP 8.3.36 (cli) (built: Oct 21 2026 14:02:11) (NTS)\nCopyright (c) The PHP Group\nZend Engine v4.3.36, Copyright (c) Zend Technologies\n    with Zend OPcache v8.3.36, Copyright (c), by Zend Technologies"
+    },
+    {
+      "when": "patched",
+      "match": "^(dpkg|dpkg-query)\\b",
+      "output": "Desired=Unknown/Install/Remove/Purge/Hold\n||/ Name            Version                                  Architecture Description\n+++-===============-========================================-============-================================\nii  php8.3-cli      8.3.36-1+ubuntu24.04.1+deb.sury.org+1    amd64        cli for PHP\nii  php8.3-common   8.3.36-1+ubuntu24.04.1+deb.sury.org+1    amd64        common for PHP\nii  php8.3-fpm      8.3.36-1+ubuntu24.04.1+deb.sury.org+1    amd64        fpm for PHP\nii  php8.3-mysql    8.3.36-1+ubuntu24.04.1+deb.sury.org+1    amd64        mysql for PHP\nii  php8.3-opcache  8.3.36-1+ubuntu24.04.1+deb.sury.org+1    amd64        opcache for PHP"
+    },
+    {
+      "when": "patched",
+      "match": "^apt list\\b.*--upgradable",
+      "output": "Listing... Done"
+    },
+    {
+      "when": "patched",
+      "match": "^(apt policy|apt-cache policy)\\b",
+      "output": "php8.3-fpm:\n  Installed: 8.3.36-1+ubuntu24.04.1+deb.sury.org+1\n  Candidate: 8.3.36-1+ubuntu24.04.1+deb.sury.org+1\n  Version table:\n *** 8.3.36-1+ubuntu24.04.1+deb.sury.org+1 500\n        500 https://ppa.launchpadcontent.net/ondrej/php/ubuntu noble/main amd64 Packages"
+    },
+    {
+      "when": "patched",
+      "match": "^systemctl (status|is-active)\\b.*php",
+      "output": "\u25cf php8.3-fpm.service - The PHP 8.3 FastCGI Process Manager\n     Loaded: loaded (/usr/lib/systemd/system/php8.3-fpm.service; enabled; preset: enabled)\n     Active: active (running) since Thu 2026-10-22 09:41:07 UTC; 1min ago\n       Docs: man:php-fpm8.3(8)\n   Main PID: 48113 (php-fpm8.3)\n     Status: \"Processes active: 1, idle: 5, Requests: 18402, slow: 0, Traffic: 2.1req/sec\""
+    },
+    {
+      "when": "patched",
+      "match": "^journalctl\\b",
+      "output": "Oct 22 09:41:05 web-01 systemd[1]: Stopping php8.3-fpm.service - The PHP 8.3 FastCGI Process Manager...\nOct 22 09:41:06 web-01 systemd[1]: Stopped php8.3-fpm.service.\nOct 22 09:41:07 web-01 systemd[1]: Started php8.3-fpm.service - The PHP 8.3 FastCGI Process Manager."
+    },
+    {
+      "match": "^php\\b",
+      "output": "PHP 8.3.30 (cli) (built: Sep 26 2026 10:15:40) (NTS)\nCopyright (c) The PHP Group\nZend Engine v4.3.30, Copyright (c) Zend Technologies\n    with Zend OPcache v8.3.30, Copyright (c), by Zend Technologies"
+    },
+    {
+      "match": "^(dpkg|dpkg-query)\\b",
+      "output": "Desired=Unknown/Install/Remove/Purge/Hold\n||/ Name            Version                                  Architecture Description\n+++-===============-========================================-============-================================\nii  php8.3-cli      8.3.30-1+ubuntu24.04.1+deb.sury.org+1    amd64        cli for PHP\nii  php8.3-common   8.3.30-1+ubuntu24.04.1+deb.sury.org+1    amd64        common for PHP\nii  php8.3-fpm      8.3.30-1+ubuntu24.04.1+deb.sury.org+1    amd64        fpm for PHP\nii  php8.3-mysql    8.3.30-1+ubuntu24.04.1+deb.sury.org+1    amd64        mysql for PHP\nii  php8.3-opcache  8.3.30-1+ubuntu24.04.1+deb.sury.org+1    amd64        opcache for PHP"
+    },
+    {
+      "match": "^apt list\\b.*--upgradable",
+      "output": "Listing... Done\nphp8.3-cli/noble 8.3.36-1+ubuntu24.04.1+deb.sury.org+1 amd64 [upgradable from: 8.3.30-1+ubuntu24.04.1+deb.sury.org+1]\nphp8.3-common/noble 8.3.36-1+ubuntu24.04.1+deb.sury.org+1 amd64 [upgradable from: 8.3.30-1+ubuntu24.04.1+deb.sury.org+1]\nphp8.3-fpm/noble 8.3.36-1+ubuntu24.04.1+deb.sury.org+1 amd64 [upgradable from: 8.3.30-1+ubuntu24.04.1+deb.sury.org+1]\nphp8.3-mysql/noble 8.3.36-1+ubuntu24.04.1+deb.sury.org+1 amd64 [upgradable from: 8.3.30-1+ubuntu24.04.1+deb.sury.org+1]\nphp8.3-opcache/noble 8.3.36-1+ubuntu24.04.1+deb.sury.org+1 amd64 [upgradable from: 8.3.30-1+ubuntu24.04.1+deb.sury.org+1]"
+    },
+    {
+      "match": "^apt list\\b",
+      "output": "Listing... Done\nphp8.3-cli/noble,now 8.3.30-1+ubuntu24.04.1+deb.sury.org+1 amd64 [installed,upgradable to: 8.3.36-1+ubuntu24.04.1+deb.sury.org+1]\nphp8.3-common/noble,now 8.3.30-1+ubuntu24.04.1+deb.sury.org+1 amd64 [installed,upgradable to: 8.3.36-1+ubuntu24.04.1+deb.sury.org+1]\nphp8.3-fpm/noble,now 8.3.30-1+ubuntu24.04.1+deb.sury.org+1 amd64 [installed,upgradable to: 8.3.36-1+ubuntu24.04.1+deb.sury.org+1]\nphp8.3-mysql/noble,now 8.3.30-1+ubuntu24.04.1+deb.sury.org+1 amd64 [installed,upgradable to: 8.3.36-1+ubuntu24.04.1+deb.sury.org+1]\nphp8.3-opcache/noble,now 8.3.30-1+ubuntu24.04.1+deb.sury.org+1 amd64 [installed,upgradable to: 8.3.36-1+ubuntu24.04.1+deb.sury.org+1]"
+    },
+    {
+      "match": "^(apt policy|apt-cache policy)\\b",
+      "output": "php8.3-fpm:\n  Installed: 8.3.30-1+ubuntu24.04.1+deb.sury.org+1\n  Candidate: 8.3.36-1+ubuntu24.04.1+deb.sury.org+1\n  Version table:\n     8.3.36-1+ubuntu24.04.1+deb.sury.org+1 500\n        500 https://ppa.launchpadcontent.net/ondrej/php/ubuntu noble/main amd64 Packages\n *** 8.3.30-1+ubuntu24.04.1+deb.sury.org+1 100\n        100 /var/lib/dpkg/status"
+    },
+    {
+      "match": "^systemctl (status|is-active)\\b.*nginx",
+      "output": "\u25cf nginx.service - A high performance web server and a reverse proxy server\n     Loaded: loaded (/usr/lib/systemd/system/nginx.service; enabled; preset: enabled)\n     Active: active (running) since Sat 2026-10-03 06:12:44 UTC; 2 weeks 5 days ago"
+    },
+    {
+      "match": "^systemctl (status|is-active)\\b.*php",
+      "output": "\u25cf php8.3-fpm.service - The PHP 8.3 FastCGI Process Manager\n     Loaded: loaded (/usr/lib/systemd/system/php8.3-fpm.service; enabled; preset: enabled)\n     Active: active (running) since Sat 2026-10-03 06:12:41 UTC; 2 weeks 5 days ago\n       Docs: man:php-fpm8.3(8)\n   Main PID: 1022 (php-fpm8.3)\n     Status: \"Processes active: 1, idle: 5, Requests: 18402, slow: 0, Traffic: 2.1req/sec\""
+    },
+    {
+      "match": "^systemctl (status|is-active)\\b.*unattended",
+      "output": "\u25cf unattended-upgrades.service - Unattended Upgrades Shutdown\n     Loaded: loaded (/usr/lib/systemd/system/unattended-upgrades.service; enabled; preset: enabled)\n     Active: active (running) since Sat 2026-10-03 06:12:39 UTC; 2 weeks 5 days ago"
+    },
+    {
+      "match": "^(cat|head|grep)\\b.*50unattended-upgrades",
+      "output": "Unattended-Upgrade::Allowed-Origins {\n\t\"${distro_id}:${distro_codename}\";\n\t\"${distro_id}:${distro_codename}-security\";\n\t\"${distro_id}ESMApps:${distro_codename}-apps-security\";\n\t\"${distro_id}ESM:${distro_codename}-infra-security\";\n};\nUnattended-Upgrade::Automatic-Reboot \"false\";"
+    },
+    {
+      "match": "^(tail|cat|head|grep)\\b.*unattended-upgrades\\.log",
+      "output": "2026-10-22 06:31:12,442 INFO Starting unattended upgrades script\n2026-10-22 06:31:12,443 INFO Allowed origins are: o=Ubuntu,a=noble, o=Ubuntu,a=noble-security, o=UbuntuESMApps,a=noble-apps-security, o=UbuntuESM,a=noble-infra-security\n2026-10-22 06:31:19,027 INFO No packages found that can be upgraded unattended and no pending auto-removals"
+    },
+    {
+      "match": "^ls\\b.*sources\\.list\\.d",
+      "output": "ondrej-ubuntu-php-noble.sources\nubuntu.sources"
+    },
+    {
+      "match": "^journalctl\\b",
+      "output": "Oct 22 06:31:12 web-01 systemd[1]: Starting apt-daily-upgrade.service - Daily apt upgrade and clean activities...\nOct 22 06:31:19 web-01 systemd[1]: apt-daily-upgrade.service: Deactivated successfully.\nOct 22 06:31:19 web-01 systemd[1]: Finished apt-daily-upgrade.service - Daily apt upgrade and clean activities."
+    },
+    {
+      "match": "^curl\\b",
+      "output": "HTTP/1.1 200 OK\nServer: nginx\nContent-Type: text/html; charset=UTF-8\nCache-Control: no-store"
+    },
+    {
+      "match": "^uptime\\b",
+      "output": " 09:38:52 up 19 days,  3:26,  1 user,  load average: 0.21, 0.18, 0.12"
+    },
+    {
+      "match": "^df\\b",
+      "output": "Filesystem      Size  Used Avail Use% Mounted on\n/dev/sda1        40G   11G   27G  29% /"
+    }
+  ],
+  "actions": [
+    {
+      "match": "^(sudo )?(apt|apt-get) update\\b",
+      "output": "Hit:1 http://archive.ubuntu.com/ubuntu noble InRelease\nHit:2 https://ppa.launchpadcontent.net/ondrej/php/ubuntu noble InRelease\nReading package lists... Done\n5 packages can be upgraded."
+    },
+    {
+      "match": "^(sudo )?(apt|apt-get)\\b.*\\b(install|upgrade|full-upgrade|dist-upgrade)\\b.*php",
+      "output": "Reading package lists... Done\nThe following packages will be upgraded:\n  php8.3-cli php8.3-common php8.3-fpm php8.3-mysql php8.3-opcache\n5 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.\nSetting up php8.3-fpm (8.3.36-1+ubuntu24.04.1+deb.sury.org+1) ...\nProcessing triggers for php8.3-fpm (8.3.36-1+ubuntu24.04.1+deb.sury.org+1) ...",
+      "sets": [
+        "patched"
+      ]
+    },
+    {
+      "match": "^(sudo )?(apt|apt-get)\\b.*\\b(upgrade|full-upgrade|dist-upgrade)\\b",
+      "output": "Reading package lists... Done\nThe following packages will be upgraded:\n  php8.3-cli php8.3-common php8.3-fpm php8.3-mysql php8.3-opcache\n5 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.\nSetting up php8.3-fpm (8.3.36-1+ubuntu24.04.1+deb.sury.org+1) ...",
+      "sets": [
+        "patched"
+      ]
+    },
+    {
+      "match": "^(sudo )?systemctl (restart|reload|try-restart)\\b.*php",
+      "output": ""
+    },
+    {
+      "match": "^(sudo )?(cp|tee|sed|echo)\\b.*unattended",
+      "output": "",
+      "sets": [
+        "auto_patch_ppa"
+      ]
+    },
+    {
+      "when": "patched",
+      "match": "^ansible-playbook\\b",
+      "output": "TASK [php_guard : Block deploy on vulnerable PHP] ******************************\nok: [web-01] => {\"changed\": false, \"msg\": \"All assertions passed\"}\n...\nPLAY RECAP *********************************************************************\nweb-01                     : ok=14   changed=3    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0"
+    },
+    {
+      "match": "^ansible-playbook\\b",
+      "output": "fatal: [web-01]: FAILED! => {\"msg\": \"PHP 8.3.30 is vulnerable to CVE-2026-109618 and CVE-2026-109619 (PHP2Shell, unauthenticated remote code execution). Patch PHP to 8.3.36 or later before deploying to production.\"}"
+    }
+  ]
+}

@@ -25,6 +25,11 @@ from ai_workbench.sandbox import Sandbox, is_destructive, is_read_only, refusal
     "git remote show origin",
     'grep -rl "terraform workspace" /opt/infra',
     'curl -s -o /dev/null -w "%{http_code}" http://10.0.0.5:3900/',
+    "php -v",
+    "dpkg -l 'php8.3*'",
+    "apt list --upgradable",
+    "apt-cache policy php8.3-fpm",
+    "systemctl status php8.3-fpm",
 ])
 def test_read_only_allowed(cmd):
     assert is_read_only(cmd)
@@ -100,6 +105,15 @@ def test_read_only_allowed(cmd):
     "ping 10.0.0.5",
     "tail -f /var/log/syslog",
     "docker logs -f garage",
+    # php runs code or prints settings unless it only reports its version
+    "php -r 'system(\"id\");'",
+    "php -v -r 'echo 1;'",
+    "php -i",
+    "php artisan migrate",
+    "apt-get install --only-upgrade php8.3-fpm",
+    "apt upgrade",
+    "dpkg -i x.deb",
+    "systemctl restart php8.3-fpm",
 ])
 def test_mutating_refused(cmd):
     assert not is_read_only(cmd)
@@ -130,3 +144,20 @@ def test_garage_fix_changes_state():
 
 def test_unknown_sample_has_empty_sandbox():
     assert "no simulated output" in Sandbox.for_sample("does-not-exist").run("docker ps")
+
+
+def test_php_patch_changes_state():
+    box = Sandbox.for_sample("04-php2shell-precheck")
+    assert "PHP 8.3.30" in box.run("php -v")
+    assert "upgradable from" in box.run("apt list --upgradable")
+    assert "PHP 8.3.30" in box.apply("ansible-playbook deploy.yml")  # still blocked
+    box.apply("apt-get update && apt-get install --only-upgrade 'php8.3-*'")
+    assert "PHP 8.3.36" in box.run("php -v")
+    assert "2026-10-22" in box.run("systemctl status php8.3-fpm")  # FPM restarted onto the new build
+    assert "failed=0" in box.apply("ansible-playbook deploy.yml")
+
+
+def test_checks_inside_a_fix_show_output():
+    box = Sandbox.for_sample("04-php2shell-precheck")
+    out = box.apply("apt-get install --only-upgrade 'php8.3-*' && systemctl status php8.3-fpm")
+    assert "active (running) since Thu 2026-10-22" in out

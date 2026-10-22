@@ -76,16 +76,16 @@
   "group": "Submission",
   "item": "Demo video under 3 minutes on YouTube",
   "status": "Not started",
-  "detail": "Story chosen: before/after on sample 03, approval gate.",
+  "detail": "Story: open on PHP2Shell (sample 04, real news), show the approval gate, then runbooks off vs on. No PHP/CISA/CERT-EU logos.",
   "next": "Script, record with iTerm2 profile, upload."
  },
  {
   "id": "S8",
   "group": "Submission",
   "item": "Text description on Devpost",
-  "status": "Not started",
-  "detail": "",
-  "next": "Draft from README."
+  "status": "Partly done",
+  "detail": "Drafted in the Devpost draft doc; not pasted into Devpost yet. https://claude.ai/artifact/VRn7EgbyCkTM5xidik5bAW",
+  "next": "Switch to first person, add sample 04, paste into Devpost."
  },
  {
   "id": "S9",
@@ -99,16 +99,16 @@
   "id": "S10",
   "group": "Submission",
   "item": "Feedback on Nebius and NVIDIA tools",
-  "status": "Not started",
-  "detail": "Notes collected: model names, Lightning reasoning leak, tool calls, embeddings.",
+  "status": "Partly done",
+  "detail": "Drafted in the Devpost draft doc (worked well / slowed us down, with suggestions). https://claude.ai/artifact/VRn7EgbyCkTM5xidik5bAW",
   "next": "Write it up (also enters Most Valuable Feedback)."
  },
  {
   "id": "S11",
   "group": "Submission",
   "item": "Pre-existing work explained",
-  "status": "Not started",
-  "detail": "Runbooks were sanitized from the author's homelab repo.",
+  "status": "Partly done",
+  "detail": "Drafted: all code written from 20 Oct; runbooks rewritten from the author's homelab notes. https://claude.ai/artifact/VRn7EgbyCkTM5xidik5bAW",
   "next": "Write the note."
  },
  {
@@ -132,8 +132,8 @@
   "group": "Judging",
   "item": "Potential impact",
   "status": "Partly done",
-  "detail": "Before/after exists but only by running twice.",
-  "next": "Show the contrast on the page; rewrite the README opening."
+  "detail": "Sample 04 ties the demo to the 21 Oct PHP2Shell security release (CVE-2026-109618/109619). Measured 22 Oct: without runbooks Super patches but misses why (unattended upgrades skip the PHP PPA) and states no risk; with runbooks it finds the cause and flags the FPM restart for approval. Comparison still needs running twice.",
+  "next": "Lead the video with sample 04; add one-click before/after in the UI."
  },
  {
   "id": "J4",
@@ -180,7 +180,7 @@
   "group": "Constraints",
   "item": "Automated tests run on every push",
   "status": "Done",
-  "detail": "GitHub Actions on every push and PR: 115 tests, gitleaks over full history, image build, smoke test and Trivy scan (fails on fixable CRITICAL); publishes ghcr.io/j-sterling/ai-workbench. Local pre-commit hook too.",
+  "detail": "GitHub Actions on every push and PR: 131 tests, gitleaks over full history, image build, smoke test and Trivy scan (fails on fixable CRITICAL); publishes ghcr.io/j-sterling/ai-workbench. Local pre-commit hook too.",
   "next": ""
  },
  {
@@ -204,7 +204,7 @@
   "group": "Bonus",
   "item": "Best Use of Tavily ($3k)",
   "status": "Not started",
-  "detail": "Needs a working runtime Tavily call.",
+  "detail": "Natural fit found: look up the live CVE advisory / fixed versions for sample 04 with Tavily at runtime.",
   "next": "Optional: web search when no runbook matches."
  }
 ]

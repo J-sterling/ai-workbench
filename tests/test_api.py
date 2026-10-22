@@ -36,7 +36,7 @@ def test_page_config_and_samples(client):
     assert "Simulated host" in client.get("/").text
     assert settings.model_smart in client.get("/config").json()["models"]
     names = [s["name"] for s in client.get("/samples").json()]
-    assert names == ["01-garage-down", "02-ci-checkout-dns", "03-blank-s3-creds"]
+    assert names == ["01-garage-down", "02-ci-checkout-dns", "03-blank-s3-creds", "04-php2shell-precheck"]
 
 
 def test_run_pauses_for_approval_then_finishes(client, model):

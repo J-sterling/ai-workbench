@@ -24,7 +24,8 @@ READ_ONLY = re.compile(
     r"|ls|cat|head|tail|grep|stat|file|find|wc|echo|whoami|id|hostname|uptime|date|df|du|free"
     r"|getent|dig|nslookup|host|ping|curl|nc|ss|netstat|ip (a|addr|r|route)"
     r"|terraform (version|show|validate|providers|state list|workspace (list|show))"
-    r"|git (status|log|diff|show|remote)|kubectl (get|describe|logs)|journalctl|systemctl (status|is-active))"
+    r"|git (status|log|diff|show|remote)|kubectl (get|describe|logs)|journalctl|systemctl (status|is-active)"
+    r"|php|dpkg (-l|-s|--list|--status)|dpkg-query (-l|-W|-s)|apt (list|policy|show)|apt-cache (policy|show))"
     # The tool name must be followed by a space or the end: "file=x rm -rf /" is not "file".
     r"(?=\s|$)"
 )
@@ -67,6 +68,8 @@ PER_TOOL = [
     (re.compile(r"^docker inspect\b"), re.compile(r"^(?!.*\s(-f|--format)[\s=])|\b(Env|Config)\b"),
      "full docker inspect output includes environment secrets; use --format with the fields you need, "
      "e.g. --format '{{json .Mounts}}'"),
+    (re.compile(r"^php\b"), re.compile(r"^(?!php\s+(-v|--version)\s*$)"),
+     "php may only report its version (php -v); other options run code or print settings that can hold secrets"),
     (re.compile(r"^terraform providers\b"), re.compile(r"\s(lock|mirror)\b"), "this writes provider files"),
     (re.compile(r"^(cat|head|tail)\b"), re.compile(r"[?*\[]"),
      "use the exact file path; wildcards can reach files that hold secrets"),
@@ -155,6 +158,8 @@ class Sandbox:
             if hit:
                 self.flags.update(hit.get("sets", []))
                 out.append(hit["output"])
+            elif is_read_only(step):  # a check inside the fix, e.g. "systemctl status" after an upgrade
+                out.append(self.run(step))
             else:
                 out.append(f"(sandbox) ran with no simulated effect: {step}")
         return "\n".join(o for o in out if o)
