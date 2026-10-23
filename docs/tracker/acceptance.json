@@ -53,7 +53,11 @@
   "item": "README: setup, Nemotron and Token Factory use",
   "status": "Partly done",
   "detail": "Setup, web UI, token usage page, limits, data handling and deploy (single container + CI image) are written.",
-  "next": "Add 'How Nemotron and Token Factory are used', open with the on-call problem, list Nebius services."
+  "next": "Add 'How Nemotron, Token Factory and Tavily are used' and open the README with the on-call problem.",
+  "order": 2,
+  "owner": "Claude",
+  "effort": "30 min",
+  "blocking": true
  },
  {
   "id": "S5",
@@ -69,7 +73,11 @@
   "item": "Testing instructions",
   "status": "Partly done",
   "detail": "URL ready; password stored in .env (HF_DEMO_PASSWORD) and SecretStash.",
-  "next": "Write the Devpost testing instructions: URL, password (private field), 3 samples, simulated host."
+  "next": "Drafted. Paste into Devpost; put the password in the private field.",
+  "order": 4,
+  "owner": "You",
+  "effort": "10 min",
+  "blocking": true
  },
  {
   "id": "S7",
@@ -77,7 +85,11 @@
   "item": "Demo video under 3 minutes on YouTube",
   "status": "Not started",
   "detail": "Story: open on PHP2Shell (sample 04, real news), show the approval gate, then runbooks off vs on. No PHP/CISA/CERT-EU logos.",
-  "next": "Script, record with iTerm2 profile, upload."
+  "next": "Recording in progress (QuickTime); edit in iMovie to the revised script; upload to YouTube as Public.",
+  "order": 1,
+  "owner": "You",
+  "effort": "2–3 h",
+  "blocking": true
  },
  {
   "id": "S8",
@@ -85,7 +97,11 @@
   "item": "Text description on Devpost",
   "status": "Partly done",
   "detail": "Drafted in the Devpost draft doc; not pasted into Devpost yet. https://claude.ai/artifact/VRn7EgbyCkTM5xidik5bAW",
-  "next": "Switch to first person, add sample 04, paste into Devpost."
+  "next": "Drafted. Final pass (video link, judge review), then paste into Devpost.",
+  "order": 3,
+  "owner": "Claude, then you",
+  "effort": "20 min + paste",
+  "blocking": true
  },
  {
   "id": "S9",
@@ -93,7 +109,11 @@
   "item": "Track selected",
   "status": "Not started",
   "detail": "Decided: Best Apps and Agents.",
-  "next": "Select on the Devpost form."
+  "next": "Select Best Apps and Agents, and the Best Use of Tavily bonus, on the Devpost form; then Submit.",
+  "order": 7,
+  "owner": "You",
+  "effort": "2 min",
+  "blocking": true
  },
  {
   "id": "S10",
@@ -101,7 +121,11 @@
   "item": "Feedback on Nebius and NVIDIA tools",
   "status": "Partly done",
   "detail": "Drafted in the Devpost draft doc (worked well / slowed us down, with suggestions). https://claude.ai/artifact/VRn7EgbyCkTM5xidik5bAW",
-  "next": "Write it up (also enters Most Valuable Feedback)."
+  "next": "Drafted. Paste into Devpost's feedback field.",
+  "order": 5,
+  "owner": "You",
+  "effort": "5 min",
+  "blocking": true
  },
  {
   "id": "S11",
@@ -109,7 +133,11 @@
   "item": "Pre-existing work explained",
   "status": "Partly done",
   "detail": "Drafted: all code written from 20 Oct; runbooks rewritten from the author's homelab notes. https://claude.ai/artifact/VRn7EgbyCkTM5xidik5bAW",
-  "next": "Write the note."
+  "next": "Drafted. Paste into Devpost's pre-existing work field.",
+  "order": 6,
+  "owner": "You",
+  "effort": "5 min",
+  "blocking": true
  },
  {
   "id": "J1",
@@ -125,7 +153,11 @@
   "item": "Design",
   "status": "Partly done",
   "detail": "About 70% closed: full flow on one page.",
-  "next": "Add one-click with/without runbooks compare, openable runbooks, header links."
+  "next": "One-click with/without runbooks compare. Skip unless time is left.",
+  "order": 21,
+  "owner": "Claude",
+  "effort": "2–3 h",
+  "blocking": false
  },
  {
   "id": "J3",
@@ -133,7 +165,11 @@
   "item": "Potential impact",
   "status": "Partly done",
   "detail": "Sample 04 ties the demo to the 21 Oct PHP2Shell security release (CVE-2026-109618/109619). Measured 22 Oct: without runbooks Super patches but misses why (unattended upgrades skip the PHP PPA) and states no risk; with runbooks it finds the cause and flags the FPM restart for approval. Comparison still needs running twice.",
-  "next": "Lead the video with sample 04; add one-click before/after in the UI."
+  "next": "Lead the video with sample 04; one-click before/after in the UI if time allows.",
+  "order": 22,
+  "owner": "Claude",
+  "effort": "with the video",
+  "blocking": false
  },
  {
   "id": "J4",
@@ -165,7 +201,11 @@
   "item": "Simulated host disclosed",
   "status": "Partly done",
   "detail": "Shown in the UI banner and README.",
-  "next": "Say it in the video."
+  "next": "Caption 'simulated host' on the first check in the video.",
+  "order": 8,
+  "owner": "You",
+  "effort": "in the video",
+  "blocking": true
  },
  {
   "id": "C4",
@@ -189,7 +229,11 @@
   "item": "Third-party licences and software assets reviewed",
   "status": "Partly done",
   "detail": "58 components registered. Done: Dependabot, uv aligned, gitleaks in CI, Trivy in CI, pip removed from image (Python CVEs 5 to 0), deploy pins by digest. 44 Debian HIGH findings have no upstream fix and are accepted.",
-  "next": "Self-host fonts, add psycopg licence notice, verify Nemotron licence terms."
+  "next": "Self-host fonts, add the psycopg licence notice, check the Nemotron licence wording.",
+  "order": 20,
+  "owner": "Claude",
+  "effort": "45 min",
+  "blocking": false
  },
  {
   "id": "C7",
