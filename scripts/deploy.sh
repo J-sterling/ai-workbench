@@ -20,7 +20,8 @@ ARGS=(ai endpoint create
   --container-port 8000
   --env HOST=0.0.0.0 --env KB_BACKEND=memory
   --env-secret "NEBIUS_API_KEY=$SECRET_NAME"
-  --env-secret "DEMO_PASSWORD=$SECRET_NAME")
+  --env-secret "DEMO_PASSWORD=$SECRET_NAME"
+  --env-secret "TAVILY_API_KEY=$SECRET_NAME")
 # No --public (the managed https:// URL is enough) and no --auth token (browsers can't send it;
 # the app's DEMO_PASSWORD protects it instead).
 
@@ -29,7 +30,7 @@ About to create a Nebius Serverless AI endpoint:
   name      $ENDPOINT_NAME
   image     $IMAGE   (currently $DIGEST)
   compute   $PLATFORM / $PRESET, disk $DISK_SIZE
-  secrets   NEBIUS_API_KEY, DEMO_PASSWORD from SecretStash '$SECRET_NAME'
+  secrets   NEBIUS_API_KEY, DEMO_PASSWORD, TAVILY_API_KEY from SecretStash '$SECRET_NAME'
   cost      about \$0.066/hour while running (cpu-d3); stop it with scripts/endpoint.sh stop
 INFO
 

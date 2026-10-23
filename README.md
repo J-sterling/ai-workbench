@@ -8,7 +8,7 @@ The demo agent triages failed infrastructure runs (Ansible / Terraform logs).
 
 > Work in progress for the Nebius x NVIDIA Global AI Hackathon 2026.
 
-**Live demo:** https://port8000-mdrw2067ezb2w1c.tunnel.applications.uk-south1.nebius.cloud (Nebius Serverless AI endpoint, password-protected; the password is in the Devpost testing instructions). Commands run against a simulated host.
+**Live demo:** https://port8000-kgxq36m5ct93fax.tunnel.applications.uk-south1.nebius.cloud (Nebius Serverless AI endpoint, password-protected; the password is in the Devpost testing instructions). Commands run against a simulated host.
 
 ## Quick start
 

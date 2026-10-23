@@ -60,7 +60,7 @@
   "group": "Submission",
   "item": "Working demo URL until 15 Dec",
   "status": "Done",
-  "detail": "Live on a Nebius Serverless AI endpoint (cpu-d3 2vcpu-8gb, uk-south1): https://port8000-mdrw2067ezb2w1c.tunnel.applications.uk-south1.nebius.cloud. Password-protected; smoke test passes (health, password, Super only, Garage run to approval). $25 budget alert set. Currently STOPPED (no charges) until needed; start with scripts/endpoint.sh start.",
+  "detail": "Live on a Nebius Serverless AI endpoint (cpu-d3 2vcpu-8gb, uk-south1): https://port8000-kgxq36m5ct93fax.tunnel.applications.uk-south1.nebius.cloud. Password-protected; smoke test passes (health, password, Super only, Garage run to approval). $25 budget alert set. Currently STOPPED (no charges) until needed; start with scripts/endpoint.sh start.",
   "next": "Start for testing/video; keep running from submission (~27 Oct) to 15 Dec."
  },
  {
@@ -203,8 +203,8 @@
   "id": "B1",
   "group": "Bonus",
   "item": "Best Use of Tavily ($3k)",
-  "status": "Partly done",
-  "detail": "search_web via Tavily works locally (23 Oct): server-enforced live advisory check on CVE-citing runbooks, official sources only, sources filtered to returned URLs. Live: CISA confirmed PHP 8.3.36 for sample 04.",
-  "next": "Add TAVILY_API_KEY to SecretStash, recreate the endpoint, show the step in the video."
+  "status": "Done",
+  "detail": "Tavily search_web live on the Nebius endpoint (23 Oct): server-enforced advisory check on CVE-citing runbooks, official sources only, sources filtered to returned URLs. Live run: CISA, Ubuntu and Red Hat returned; approval card cites CISA.",
+  "next": "Show it in the video; mention it in the Devpost description."
  }
 ]
