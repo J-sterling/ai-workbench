@@ -180,7 +180,7 @@
   "group": "Constraints",
   "item": "Automated tests run on every push",
   "status": "Done",
-  "detail": "GitHub Actions on every push and PR: 131 tests, gitleaks over full history, image build, smoke test and Trivy scan (fails on fixable CRITICAL); publishes ghcr.io/j-sterling/ai-workbench. Local pre-commit hook too.",
+  "detail": "GitHub Actions on every push and PR: 136 tests, gitleaks over full history, image build, smoke test and Trivy scan (fails on fixable CRITICAL); publishes ghcr.io/j-sterling/ai-workbench. Local pre-commit hook too.",
   "next": ""
  },
  {
@@ -203,8 +203,8 @@
   "id": "B1",
   "group": "Bonus",
   "item": "Best Use of Tavily ($3k)",
-  "status": "Not started",
-  "detail": "Natural fit found: look up the live CVE advisory / fixed versions for sample 04 with Tavily at runtime.",
-  "next": "Optional: web search when no runbook matches."
+  "status": "Partly done",
+  "detail": "search_web via Tavily works locally (23 Oct): server-enforced live advisory check on CVE-citing runbooks, official sources only, sources filtered to returned URLs. Live: CISA confirmed PHP 8.3.36 for sample 04.",
+  "next": "Add TAVILY_API_KEY to SecretStash, recreate the endpoint, show the step in the video."
  }
 ]

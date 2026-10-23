@@ -71,6 +71,8 @@ ol.timeline { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px;
 .step.decision.yes { border-left-color: var(--ok); }
 .step.decision.no { border-left-color: var(--bad); }
 .step .head { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: baseline; }
+.links { margin: 6px 0 0; padding-left: 18px; font-size: 13px; }
+.links a, .card dd a { word-break: break-all; }
 .step .kind { font: 500 11px var(--mono); letter-spacing: .07em; text-transform: uppercase; color: var(--muted); }
 .step code.cmd { font: 500 13px var(--mono); word-break: break-word; }
 .step .why { font-size: 13px; color: var(--muted); }
@@ -121,7 +123,7 @@ pre.out { margin: 6px 0 0; font: 12px/1.45 var(--mono); background: var(--code);
         <div class="label" style="margin-bottom:6px">Log</div>
         <textarea id="log" spellcheck="false" aria-label="Log text" placeholder="Pick a sample above, or paste the failing part of a log here."></textarea>
         <p class="hint" id="loghint"></p>
-        <p class="notice" role="note"><b>Don't paste personal data or secrets.</b> Logs are sent to Nebius Token Factory for the model and embedding calls, kept only in this server's memory (the last 200 runs) and gone when it restarts. Only token counts are written to disk, never log text.</p>
+        <p class="notice" role="note"><b>Don't paste personal data or secrets.</b> Logs are sent to Nebius Token Factory for the model and embedding calls, kept only in this server's memory (the last 200 runs) and gone when it restarts. Only token counts are written to disk, never log text.<span id="webnotice" hidden> When web search is on, the agent sends short public search queries (never the log) to Tavily.</span></p>
       </div>
       <div class="row">
         <label class="toggle"><input type="checkbox" id="usekb" checked> Use runbooks</label>
@@ -241,6 +243,14 @@ function stepNode(s) {
     return el("li", { class: "step" }, el("div", { class: "head" }, el("span", { class: "kind", text: "Runbook search" }), el("span", { text: s.query })),
       el("div", { class: "chips" }, ...(s.matched.length ? s.matched : ["nothing matched"]).map((m) => el("span", { class: "chip", text: m.replace("runbooks/", "") }))));
   }
+  if (s.kind === "web") {
+    const links = s.results.length
+      ? el("ul", { class: "links" }, ...s.results.map((r) => el("li", {}, el("a", { href: r.url, target: "_blank", rel: "noopener noreferrer", text: r.title || r.url }))))
+      : el("div", { class: "why", text: s.output || s.error || "No results." });
+    return el("li", { class: "step" }, el("div", { class: "head" }, el("span", { class: "kind", text: "Web search · Tavily" }), el("span", { text: s.query }),
+      s.skipped ? el("span", { class: "badge", text: "skipped: limit reached" }) : null,
+      s.error ? el("span", { class: "badge", text: "unavailable" }) : null), links);
+  }
   if (s.kind === "diagnostic") {
     const head = el("div", { class: "head" }, el("span", { class: "kind", text: "Check" }), el("code", { class: "cmd", text: s.command }),
       s.refused ? el("span", { class: "badge bad", text: "refused" }) : null,
@@ -282,7 +292,9 @@ function renderCard(run) {
   box.replaceChildren(el("div", { class: "card" + (p.destructive ? " destructive" : "") },
     el("h3", {}, "The agent wants to change the system", p.destructive ? el("span", { class: "badge bad", text: "destructive" }) : null),
     el("pre", { text: p.commands.join("\n") }),
-    el("dl", {}, el("dt", { text: "Why" }), el("dd", { text: p.reason || "—" }), el("dt", { text: "Risk" }), el("dd", { text: p.risk || "—" })),
+    el("dl", {}, el("dt", { text: "Why" }), el("dd", { text: p.reason || "—" }), el("dt", { text: "Risk" }), el("dd", { text: p.risk || "—" }),
+      (p.sources || []).length ? el("dt", { text: "Sources" }) : null,
+      (p.sources || []).length ? el("dd", {}, ...p.sources.map((u) => el("div", {}, el("a", { href: u, target: "_blank", rel: "noopener noreferrer", text: u })))) : null),
     note, el("div", { class: "row" }, yes, no)));
 }
 
@@ -339,6 +351,7 @@ $("log").addEventListener("input", updateHint);
 (async () => {
   try {
     [cfg, samples] = await Promise.all([api("/config"), api("/samples")]);
+    $("webnotice").hidden = !cfg.web_search;
     $("model").replaceChildren(...cfg.models.map((m) => {
       const o = el("option", { value: m, text: shortModel(m) + (m === cfg.default_model ? " (default)" : "") });
       if (m === cfg.default_model) o.selected = true;

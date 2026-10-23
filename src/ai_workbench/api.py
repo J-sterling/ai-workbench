@@ -6,7 +6,7 @@ from fastapi import APIRouter, BackgroundTasks, Depends, FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
-from ai_workbench import agent, guard, kb, usage
+from ai_workbench import agent, guard, kb, usage, websearch
 from ai_workbench.config import settings
 from ai_workbench.sandbox import SAMPLES
 from ai_workbench.triage import triage
@@ -68,6 +68,7 @@ def config() -> dict:
         "default_model": settings.model_smart,
         "max_log_bytes": settings.max_log_bytes,
         "daily_run_limit": settings.daily_run_limit,
+        "web_search": websearch.enabled(),
     }
 
 

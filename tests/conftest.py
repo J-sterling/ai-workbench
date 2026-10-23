@@ -17,6 +17,17 @@ def _usage_file(tmp_path, monkeypatch):
     monkeypatch.setattr(settings, "usage_file", str(tmp_path / "usage.jsonl"))
 
 
+@pytest.fixture(autouse=True)
+def _no_web_search(tmp_path, monkeypatch):
+    """Web search is off unless a test turns it on; tests never reach Tavily."""
+    from ai_workbench import websearch
+    from ai_workbench.config import settings
+    monkeypatch.setattr(settings, "tavily_api_key", None)
+    monkeypatch.setattr(settings, "web_search_state_file", str(tmp_path / "websearch.json"))
+    monkeypatch.setattr(websearch, "_call", lambda q, official=False: (_ for _ in ()).throw(AssertionError("no real Tavily calls in tests")))
+    websearch.reset()
+
+
 # Tool names offered on each scripted model call, newest last.
 TOOLS_SEEN: list[list[str]] = []
 

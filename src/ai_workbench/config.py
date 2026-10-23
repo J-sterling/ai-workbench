@@ -38,6 +38,11 @@ class Settings(BaseSettings):
     demo_password: SecretStr | None = None
     daily_run_limit: int = 200
     max_log_bytes: int = 20_000
+    # Web search through Tavily (off when the key is empty). The daily cap keeps the public
+    # demo inside the free tier; the count lives in a file so an app restart doesn't reset it.
+    tavily_api_key: SecretStr | None = None
+    web_search_daily_limit: int = 25
+    web_search_state_file: str = "var/websearch.json"
     # Models the API accepts; anything else is refused so callers cannot pick a pricier one.
     allowed_models: list[str] = [
         "nvidia/nemotron-3-super-120b-a12b",

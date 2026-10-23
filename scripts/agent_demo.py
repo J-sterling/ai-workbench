@@ -25,6 +25,9 @@ def show(step: dict) -> None:
         print(f"{BOLD}Runbooks retrieved:{RESET} {found}\n")
     elif kind == "search":
         print(f"{BOLD}Search:{RESET} {step['query']} -> {', '.join(step['matched']) or 'none'}\n")
+    elif kind == "web":
+        found = "\n".join(f"    {r['title']}\n      {r['url']}" for r in step["results"]) or f"    {step.get('error') or step.get('output') or 'no results'}"
+        print(f"{BOLD}Web search (Tavily):{RESET} {step['query']}\n{DIM}{found}{RESET}\n")
     elif kind == "diagnostic":
         tag = f" {RED}[refused]{RESET}" if step.get("refused") else ""
         why = f"  {DIM}# {step['why']}{RESET}" if step.get("why") else ""
@@ -34,7 +37,10 @@ def show(step: dict) -> None:
         print(f"{BOLD}Proposed fix{RESET}{warn}")
         for c in step["commands"]:
             print(f"    {c}")
-        print(f"  reason: {step['reason']}\n  risk:   {step['risk']}\n")
+        print(f"  reason: {step['reason']}\n  risk:   {step['risk']}")
+        for u in step.get("sources", []):
+            print(f"  source: {u}")
+        print()
     elif kind == "decision":
         verdict = f"{GREEN}approved{RESET}" if step["approved"] else f"{RED}rejected{RESET}"
         print(f"Operator {verdict}\n{DIM}{indent(step['output'])}{RESET}\n")

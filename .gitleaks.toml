@@ -22,6 +22,12 @@ id = "demo-password-assignment"
 description = "A value assigned to DEMO_PASSWORD"
 regex = '''DEMO_PASSWORD\s*[=:]\s*['"]?[^\s'"#$.]{6,}'''
 
+# Tavily keys start with "tvly-" (the default rules may not cover every format).
+[[rules]]
+id = "tavily-api-key"
+description = "Tavily API key"
+regex = '''\btvly-[A-Za-z0-9_-]{20,}'''
+
 [allowlist]
 description = "Documented placeholders"
 paths = ['''\.env\.example$''']
