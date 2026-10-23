@@ -1,8 +1,16 @@
 {
   "_about": "Inputs for the dashboard's Bills tab that the Nebius billing export doesn't carry. scripts/finops-export.sh merges this with the export. No IDs or card details here.",
   "budget_usd_month": 25,
-  "balance": {"usd": 25.0, "as_of": "2026-10-21", "note": "Card top-up on 21 Oct; October consumption is charged at month end."},
-  "run_window": {"start": "2026-10-27", "end": "2026-12-15", "note": "Demo endpoint must be up from submission until judging ends."},
+  "balance": {
+    "usd": 25.0,
+    "as_of": "2026-10-21",
+    "note": "Card top-up on 21 Oct; October consumption is charged at month end."
+  },
+  "run_window": {
+    "start": "2026-10-27",
+    "end": "2026-12-15",
+    "note": "Demo endpoint must be up from submission until judging ends."
+  },
   "rates": {
     "endpoint_usd_per_hour": 0.066,
     "disk_usd_per_hour": 0.00194,
@@ -10,6 +18,13 @@
   },
   "manual_costs": [],
   "pending_readings": [
-    {"provider": "Nebius Token Factory", "what": "Token spend (Nemotron + Qwen embeddings) is billed outside the AI Cloud export. Read it from the Token Factory console and add it to manual_costs."}
+    {
+      "provider": "Nebius Token Factory",
+      "what": "Token spend (Nemotron + Qwen embeddings) is billed outside the AI Cloud export. Read it from the Token Factory console and add it to manual_costs."
+    },
+    {
+      "provider": "Tavily",
+      "what": "Web search credits: about 6 basic searches so far (1 credit each), inside the 1,000 free monthly credits plus the $25 AI Builder Program credit. Read usage at app.tavily.com; add to manual_costs only if a paid plan is used."
+    }
   ]
 }
