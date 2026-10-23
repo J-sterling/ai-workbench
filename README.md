@@ -2,13 +2,28 @@
 
 [![CI](https://github.com/J-sterling/ai-workbench/actions/workflows/ci.yml/badge.svg)](https://github.com/J-sterling/ai-workbench/actions/workflows/ci.yml)
 
-A self-hostable AI workbench built on Nebius Token Factory and NVIDIA Nemotron:
-connect your data, run an agent over it, and approve any risky action before it happens.
-The demo agent triages failed infrastructure runs (Ansible / Terraform logs).
+A Terraform apply or an Ansible deploy fails at 2 a.m. The fix is usually in a runbook someone wrote months ago, but the on-call engineer still has to find it, check the host and type the fix by hand. Chat assistants guess without seeing the host; autonomous agents can see it, but nobody wants one running `docker volume rm` unasked.
 
-> Work in progress for the Nebius x NVIDIA Global AI Hackathon 2026.
+AI Workbench sits in between. It reads the failed log, finds the matching runbook, checks the host with read-only commands, and proposes a fix with its reason and risk. **Nothing changes until a person approves.** It runs on NVIDIA Nemotron through Nebius Token Factory, with a live advisory check through Tavily when a runbook cites a CVE.
+
+> Built for the Nebius x NVIDIA Global AI Hackathon 2026 (track: Best Apps and Agents).
 
 **Live demo:** https://port8000-kgxq36m5ct93fax.tunnel.applications.uk-south1.nebius.cloud (Nebius Serverless AI endpoint, password-protected; the password is in the Devpost testing instructions). Commands run against a simulated host.
+
+## How Nemotron, Token Factory and Tavily are used
+
+| Part | Model or service | What it does |
+|---|---|---|
+| Agent loop | **NVIDIA Nemotron 3 Super** (`nvidia/nemotron-3-super-120b-a12b`) on **Nebius Token Factory** | Reads the log and runbooks, calls `run_diagnostic`, `search_runbooks`, `search_web` and `propose_fix` through native OpenAI `tools` / `tool_calls`, and writes the report. Live runs took 5–9 turns and 15–36k prompt tokens. |
+| Runbook retrieval | **Qwen3-Embedding-8B** on **Nebius Token Factory**, 1024 dimensions | Embeds the runbooks (once, on the first run) and the log's error lines; the closest runbooks go into the prompt. The retrieval eval finds the right runbook for 15 of 15 test logs. |
+| Live advisory check | **Tavily** search API | When a runbook cites a CVE, the server sends the agent's first fix back and asks for a live advisory check; advisory searches are limited to official domains (project, NVD, CISA, CERT-EU, distribution trackers). The approval card lists only sources the search returned. |
+| Hosting | **Nebius Serverless AI** endpoint (CPU `cpu-d3`, 2 vCPU / 8 GB, `uk-south1`) | Runs the single container behind a managed HTTPS URL. |
+| Secrets | **Nebius SecretStash** | Holds the Token Factory key, the Tavily key and the demo password; the endpoint reads them at start-up. None are in the image or the repo. |
+| Cost tracking | **Nebius billing export** (FOCUS 1.2) | `scripts/finops-export.sh` turns it into the project's cost dashboard. |
+
+**Why Super.** Token Factory exposes Super and Ultra through the same OpenAI-compatible API, so the model is one setting (`MODEL_SMART`). On these samples Super answered as well as Ultra, at similar speed and about a quarter of the cost per call, so the public demo offers Super only (`ALLOWED_MODELS`). Locally you can pick Ultra. Nemotron 3.5 Lightning isn't used: on the triage prompt it put its reasoning into the answer text.
+
+**What Token Factory made easy.** The standard `openai` Python client works by changing the base URL. Tool calls work natively, so there is no output-parsing layer. Chat and embeddings share one key and one bill. Every call's token counts are logged (never the prompt text) and shown live on the Token usage page.
 
 ## Quick start
 
@@ -79,7 +94,7 @@ Turn **Use runbooks** off to see the before/after: on sample 03 the model alone 
 2. **Diagnose**: the model calls `run_diagnostic` with read-only commands (`docker ps`, `docker logs`, `ls`, `curl`, `php -v`, `apt list` ...). The server checks every command, whatever the model says, and refuses it with a reason the model can act on. The checks are: an allowlist of read-only tools; per-tool rules for options that write or execute, such as `find -delete`, `curl -o` and `git remote add`; a check on every part of a chained command; and rules against reading common secret sources, such as `.env`, keys, `/proc/*/environ`, cloud metadata and `$TOKEN`-style variables (the model is told to check `${#VAR}` instead). It can also call `search_runbooks` again.
 
    The allowlist is a guardrail for an AI agent in a demo, not a security boundary: a determined attacker can find gaps in any pattern list. A real executor should also run diagnostics as an unprivileged, read-only user. `tests/test_sandbox.py` lists the commands it must refuse.
-   **Web search (optional, Tavily).** With `TAVILY_API_KEY` set, the agent also has `search_web`. When a runbook it relies on cites a CVE, a fixed version or an advisory, it must check the live source once before proposing the fix: the server sends the proposal back until it has searched, like the approval gate. That check searches only official security sources (the project, NVD, CISA, CERT-EU, NCSC, distribution trackers, GitHub advisories). The report then says either "Runbook check: confirmed by <url>" or "may be out of date: ...". It can also search for an error string no runbook covers. Source URLs appear on the approval card and in the report; the server keeps only links the search actually returned, so a runbook's own link can't pose as a live check. Only the model's short query is sent, never the log; IPs, emails, credentials in URLs and token-like strings are removed first. There are at most 2 searches per run and `WEB_SEARCH_DAILY_LIMIT` (default 25) per day. The daily count is kept in `var/websearch.json`, and if that file can't be read, searching stops for the day.
+   **Web search (optional, Tavily).** With `TAVILY_API_KEY` set, the agent also has `search_web`. When a runbook it relies on cites a CVE, a fixed version or an advisory, the server sends its first fix back and asks it to check the live source. The agent is told to make that search with `official_only`, which limits results to official security sources (the project, NVD, CISA, CERT-EU, NCSC, distribution trackers, GitHub advisories). The gate asks once; it nudges, it doesn't guarantee a search. The report then says either "Runbook check: confirmed by <url>" or "may be out of date: ...". It can also search for an error string no runbook covers. Source URLs appear on the approval card and in the report; the server keeps only links the search actually returned, so a runbook's own link can't pose as a live check. Only the model's short query is sent, never the log; IPs, emails, credentials in URLs and token-like strings are removed first. There are at most 2 searches per run and `WEB_SEARCH_DAILY_LIMIT` (default 25) per day. The daily count is kept in `var/websearch.json`, and if that file can't be read, searching stops for the day.
 3. **Propose**: anything that changes the system must go through `propose_fix`, with the commands, a reason and the risk. The run stops with status `awaiting_approval`. Fixes that delete volumes or data are flagged `destructive`.
 4. **Approve or reject**: `POST /agent/runs/{id}/decision` with `{"approve": true}` or `{"approve": false, "note": "..."}`. Approved commands run; a rejection goes back to the model with the note.
 5. **Verify and report**: after the fix, the model re-checks with diagnostics and writes the report: error group, root cause (citing the runbook), what was done and the follow-up.
@@ -136,7 +151,7 @@ scripts/deploy.sh             # first time only: creates the endpoint (CPU only,
 
 Only commits that CI has published can be promoted, so every live version has passed the tests, the secret scan, the smoke test and Trivy. Nebius endpoints have no in-place update. If a restart ever fails to pull the new `:demo`, `promote.sh` stops with an error. The fallback is to delete and recreate the endpoint, which changes the URL.
 
-The `Dockerfile` builds the web UI and agent into one image. Runbooks are searched in memory (`KB_BACKEND=memory`, embedded once at startup in about 3 seconds), so no database is needed. Only Nemotron Super can be chosen (`ALLOWED_MODELS`), and the server runs as one worker because runs and the daily cap live in memory.
+The `Dockerfile` builds the web UI and agent into one image. Runbooks are searched in memory (`KB_BACKEND=memory`, embedded once on the first run, in about 3 seconds), so no database is needed. Only Nemotron Super can be chosen (`ALLOWED_MODELS`), and the server runs as one worker because runs and the daily cap live in memory.
 
 ```bash
 docker build --platform linux/amd64 -t ai-workbench .
@@ -144,6 +159,13 @@ docker run --rm -p 8000:8000 -e NEBIUS_API_KEY=... -e DEMO_PASSWORD=... ai-workb
 ```
 
 Pass `NEBIUS_API_KEY` and `DEMO_PASSWORD` from the platform's secret store, never in the image (`.dockerignore` excludes `.env`). `/health` stays open for health checks; everything else needs the password when it is set.
+
+## What's next
+
+- **A real executor.** Replace the simulated host with SSH or Ansible ad-hoc commands, run as an unprivileged, read-only user behind the same `run` / `apply` interface.
+- **Runbooks that learn.** Turn each approved fix, and each stale-runbook finding from the live advisory check, into a runbook update for review.
+- **Masking before the model.** Strip personal data and secrets from logs before they reach Token Factory, for use with real logs.
+- **More failure types.** Kubernetes and cloud-provider runbooks and samples, with a retrieval eval case for each.
 
 ## Licence
 
