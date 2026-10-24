@@ -62,7 +62,7 @@
   "cost": "~$0.066/h on cpu-d3 2vcpu-8gb (uk-south1), ~$77 to 15 Dec; stopped endpoints aren't billed",
   "lifecycle": "In use (live demo endpoint)",
   "security": "Billing active; $25 monthly budget with 50/80/100% alerts; secrets in SecretStash (ai-workbench-secrets); no public IP, no SSH.",
-  "action": "Stop when idle until submission; keep running 27 Oct to 15 Dec; top up the balance when alerts arrive."
+  "action": "Stop when idle until submission; keep running 26 Oct to 15 Dec; top up the balance when alerts arrive."
  },
  {
   "id": "SV3",
