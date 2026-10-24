@@ -14,14 +14,14 @@ AI Workbench sits in between. It reads the failed log, finds the matching runboo
 
 | Part | Model or service | What it does |
 |---|---|---|
-| Agent loop | **NVIDIA Nemotron 3 Super** (`nvidia/nemotron-3-super-120b-a12b`) on **Nebius Token Factory** | Reads the log and runbooks, calls `run_diagnostic`, `search_runbooks`, `search_web` and `propose_fix` through native OpenAI `tools` / `tool_calls`, and writes the report. Live runs took 5–9 turns and 15–36k prompt tokens. |
+| Agent loop | **NVIDIA Nemotron 3 Super** (`nvidia/nemotron-3-super-120b-a12b`) on **Nebius Token Factory** | Reads the log and runbooks, calls `run_diagnostic`, `search_runbooks`, `search_web` and `propose_fix` through native OpenAI `tools` / `tool_calls`, and writes the report. Live runs took 5–9 turns and 14–36k prompt tokens (the PHP2Shell run: 7 turns, 26k tokens, 22 s). |
 | Runbook retrieval | **Qwen3-Embedding-8B** on **Nebius Token Factory**, 1024 dimensions | Embeds the runbooks (once, on the first run) and the log's error lines; the closest runbooks go into the prompt. The retrieval eval finds the right runbook for 15 of 15 test logs. |
 | Live advisory check | **Tavily** search API | When a runbook cites a CVE, the server sends the agent's first fix back and asks for a live advisory check; advisory searches are limited to official domains (project, NVD, CISA, CERT-EU, distribution trackers). The approval card lists only sources the search returned. |
 | Hosting | **Nebius Serverless AI** endpoint (CPU `cpu-d3`, 2 vCPU / 8 GB, `uk-south1`) | Runs the single container behind a managed HTTPS URL. |
 | Secrets | **Nebius SecretStash** | Holds the Token Factory key, the Tavily key and the demo password; the endpoint reads them at start-up. None are in the image or the repo. |
 | Cost tracking | **Nebius billing export** (FOCUS 1.2) | `scripts/finops-export.sh` turns it into the project's cost dashboard. |
 
-**Why Super.** Token Factory exposes Super and Ultra through the same OpenAI-compatible API, so the model is one setting (`MODEL_SMART`). On these samples Super answered as well as Ultra, at similar speed and about a quarter of the cost per call, so the public demo offers Super only (`ALLOWED_MODELS`). Locally you can pick Ultra. Nemotron 3.5 Lightning isn't used: on the triage prompt it put its reasoning into the answer text.
+**Why Super.** Token Factory exposes Super and Ultra through the same OpenAI-compatible API, so the model is one setting (`MODEL_SMART`). In early prompt-only tests Super answered as well as Ultra, at similar speed and about a quarter of the cost per call, so the public demo offers Super only (`ALLOWED_MODELS`). Locally you can pick Ultra. Nemotron 3.5 Lightning isn't used: on the triage prompt it put its reasoning into the answer text.
 
 **What Token Factory made easy.** The standard `openai` Python client works by changing the base URL. Tool calls work natively, so there is no output-parsing layer. Chat and embeddings share one key and one bill. Every call's token counts are logged (never the prompt text) and shown live on the Token usage page.
 
