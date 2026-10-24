@@ -85,7 +85,7 @@
   "item": "Demo video under 3 minutes on YouTube",
   "status": "Partly done",
   "detail": "2:20, captions only, recorded on the live endpoint 24 Oct: PHP2Shell run with runbooks and Tavily, approval, report, then runbooks off. Uploaded as Private: https://youtu.be/fmZZqF7miv8 (Science & Technology, comments held for review, embedding on).",
-  "next": "Make Public on 26 Oct, check it plays logged out, then submit.",
+  "next": "Scheduled Public 00:00 26 Oct; check it plays logged out, then submit.",
   "order": 1,
   "owner": "You",
   "effort": "5 min",
