@@ -7,7 +7,7 @@
     "note": "Card top-up on 21 Oct; October consumption is charged at month end."
   },
   "run_window": {
-    "start": "2026-10-26",
+    "start": "2026-10-24",
     "end": "2026-12-15",
     "note": "Demo endpoint must be up from submission until judging ends."
   },
